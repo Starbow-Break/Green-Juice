@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">Green Juice</string>
+
+    <string name="juice_title">Juice</string>
+    <string name="green">Green</string>
+    <string name="orange">Orange</string>
+    <string name="red">Red</string>
+    <string name="juice_with_color">%s\nJuice</string>
+
+    <string name="sentiment_title">긍/부정</string>
+    <string name="positive">긍정</string>
+    <string name="neutrality">중립</string>
+    <string name="negative">부정</string>
+
+    <string name="theme">테마</string>
+    <string name="light_theme">밝은 테마</string>
+    <string name="dark_theme">어두운 테마</string>
+    <string name="system_theme">시스템 설정에 따르기</string>
+
+    <string name="power_link_text">파워 링크</string>
+
+    <string name="network_main_error">검색 결과를 가져올 수 없습니다.</string>
+    <string name="network_sub_error">추가 데이터를 가져올 수 없습니다.</string>
+    <string name="empty_query_message">검색어를 입력해주세요.</string>
+    <string name="empty_search_item_message">검색 결과가 없습니다.</string>
+
+    <string name="filter_dialog_title">필터</string>
+    <string name="filter_null_text">All</string>
+
+    <string name="confirm_button_text">확인</string>
+    <string name="dismiss_button_text">취소</string>
+
+    <string name="search_item_amount">%d results of found</string>
+    <string name="statistics_indicator_description">%s: %d개</string>
+    <string name="analysis_result_view_title">분석 결과</string>
+
+    <string name="hashtag_view_title">해시태그</string>
+    <string name="sentiment_token">%s적인 리뷰</string>
+    <string name="power_link_token">파워링크 %s</string>
+    <string name="hashtag_token">#%s</string>
+
+    <string name="add_data_button_text">더 보기</string>
+</resources>
