@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
 
-const val AMOUNT_DATA = 10 //요청할 때 마다 받아올 데이터 갯수
+const val AMOUNT_DATA = 5 //요청할 때 마다 받아올 데이터 갯수
 const val TAG = "NavHostViewModel"
 
 class GreenJuiceNavHostViewModel(

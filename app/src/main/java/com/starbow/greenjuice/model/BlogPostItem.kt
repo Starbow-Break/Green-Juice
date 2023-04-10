@@ -25,9 +25,18 @@ data class BlogPostItem(
 )
 
 fun BlogPostItem.toJuiceItem(): JuiceItem {
-    val juiceColor = JuiceColor.valueOf(if(juice.contains("yellow")) "ORANGE" else juice.uppercase())
-    val sentiment = Sentiment.valueOf(sentiment.uppercase())
-    val hashtags = if(hashtags.isBlank() or hashtags.isEmpty()) emptyList() else hashtags.split(" ")
+    val juiceColor = when(juice) {
+        "green", "yellow", "orange", "red" -> JuiceColor.valueOf(juice.uppercase())
+        else -> JuiceColor.GREEN
+    }
+    val sentiment = when(sentiment) {
+        "positive", "neutral", "negative" -> Sentiment.valueOf(sentiment.uppercase())
+        else -> Sentiment.POSITIVE
+    }
+    val hashtags = if(hashtags.isBlank() or hashtags.isEmpty()) emptyList()
+    else hashtags.split("#").filter{ hashtag ->
+        hashtag.isNotBlank() and hashtag.isNotEmpty()
+    }.map { hashtag -> "#$hashtag" }
 
     return JuiceItem(
         title = title,

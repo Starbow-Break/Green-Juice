@@ -12,8 +12,10 @@ import com.starbow.greenjuice.network.GreenJuiceApiService
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 private const val BASE_URL = "http://10.0.2.2:4000" // <- Node.js 서버 URL 넣기
 private const val THEME_PREFERENCE_NAME = "theme_preferences"
@@ -29,9 +31,16 @@ class GreenJuiceApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        val okHttpClient = OkHttpClient.Builder()
+            .connectTimeout(1000, TimeUnit.SECONDS)
+            .readTimeout(1000, TimeUnit.SECONDS)
+            .writeTimeout(1000, TimeUnit.SECONDS)
+            .build()
+
         val retrofitService = Retrofit.Builder()
             .addConverterFactory(Json.asConverterFactory(MediaType.get("application/json")))
             .baseUrl(BASE_URL)
+            .client(okHttpClient)
             .build()
             .create(GreenJuiceApiService::class.java)
 
