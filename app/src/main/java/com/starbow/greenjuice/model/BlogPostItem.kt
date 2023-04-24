@@ -26,12 +26,12 @@ data class BlogPostItem(
 
 fun BlogPostItem.toJuiceItem(): JuiceItem {
     val juiceColor = when(juice) {
-        "green", "yellow", "orange", "red" -> JuiceColor.valueOf(juice.uppercase())
-        else -> JuiceColor.GREEN
+        "green", "orange", "red" -> JuiceColor.valueOf(juice.uppercase())
+        else -> null
     }
     val sentiment = when(sentiment) {
         "positive", "neutral", "negative" -> Sentiment.valueOf(sentiment.uppercase())
-        else -> Sentiment.POSITIVE
+        else -> null
     }
     val hashtags = if(hashtags.isBlank() or hashtags.isEmpty()) emptyList()
     else hashtags.split("#").filter{ hashtag ->

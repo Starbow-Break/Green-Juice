@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.starbow.greenjuice.R
+import com.starbow.greenjuice.ui.theme.Green500
 import com.starbow.greenjuice.ui.theme.Green800
 import com.starbow.greenjuice.ui.theme.GreenJuiceTheme
 import com.starbow.greenjuice.ui.theme.Typography
@@ -33,7 +34,7 @@ fun AppTitle(
         text = stringResource(id = R.string.app_name),
         style = Typography.h1,
         textAlign = TextAlign.Center,
-        color = Green800,
+        color = Green500,
         modifier = modifier
     )
 }

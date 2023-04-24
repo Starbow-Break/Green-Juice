@@ -107,12 +107,14 @@ class GreenJuiceNavHostViewModel(
                 JuiceColor.GREEN -> numberOfNormal++
                 JuiceColor.ORANGE -> numberOfAdDoubt++
                 JuiceColor.RED -> numberOfAd++
+                else -> {}
             }
 
             when(item.sentiment) {
                 Sentiment.POSITIVE -> numberOfPositive++
                 Sentiment.NEUTRAL -> numberOfNeutrality++
                 Sentiment.NEGATIVE -> numberOfNegative++
+                else -> {}
             }
         }
 

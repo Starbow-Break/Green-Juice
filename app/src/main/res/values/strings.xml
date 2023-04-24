@@ -12,6 +12,8 @@
     <string name="neutrality">중립</string>
     <string name="negative">부정</string>
 
+    <string name="unknown">Unknown</string>
+
     <string name="theme">테마</string>
     <string name="light_theme">밝은 테마</string>
     <string name="dark_theme">어두운 테마</string>
@@ -40,4 +42,10 @@
     <string name="hashtag_token">#%s</string>
 
     <string name="add_data_button_text">더 보기</string>
+
+    <string name="id">ID</string>
+    <string name="password">비밀번호</string>
+    <string name="password_check">비밀번호 확인</string>
+    <string name="sign_in">로그인</string>
+    <string name="sign_up">회원가입</string>
 </resources>

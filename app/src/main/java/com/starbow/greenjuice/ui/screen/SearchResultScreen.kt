@@ -1,5 +1,6 @@
 package com.starbow.greenjuice.ui.screen
 
+import android.content.res.Configuration
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Canvas
@@ -14,10 +15,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -332,8 +336,32 @@ fun SearchResultItem(
             Row {
                 JuiceResultView(juiceColor = juiceItem.juiceColor)
                 Spacer(modifier = Modifier.width(8.dp))
-                Column{
-                    Text(text = juiceItem.title.deleteBoldTag(), style = Typography.h3)
+                Column (
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row (
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = juiceItem.title.deleteBoldTag(), style = Typography.h3)
+                        IconButton(
+                            onClick = {
+
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.star_outline),
+                                tint = YellowA400,
+                                contentDescription = null
+                            )
+                            /*Icon(
+                                painter = painterResource(id = R.drawable.star),
+                                tint = YellowA400,
+                                contentDescription = null
+                            )*/
+                        }
+                    }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = juiceItem.description.deleteBoldTag())
                 }
@@ -351,42 +379,55 @@ fun SearchResultItem(
 
 @Composable
 fun JuiceResultView(
-    juiceColor: JuiceColor,
+    juiceColor: JuiceColor?,
     modifier: Modifier = Modifier
 ) {
     JuiceResultViewItem(
         juiceColor = juiceColor,
-        text = stringResource(id = R.string.juice_with_color, stringResource(id = juiceColor.stringRes)),
-        modifier = modifier.fillMaxHeight()
+        text = if(juiceColor != null) stringResource(id = R.string.juice_with_color, stringResource(id = juiceColor.stringRes))
+        else stringResource(id = R.string.unknown),
+        modifier = modifier
     )
 }
 
 @Composable
 fun JuiceResultViewItem(
-    juiceColor: JuiceColor,
+    juiceColor: JuiceColor?,
     text: String,
     modifier: Modifier = Modifier
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.width(64.dp)
+        modifier = modifier.defaultMinSize(64.dp)
     ) {
-        Image(
-            painter = painterResource(id = juiceColor.imgRes),
-            contentDescription = text,
-            modifier = Modifier
-                .padding(bottom = 4.dp)
-                .size(48.dp)
-        )
-        Text(text = text, color = juiceColor.color, textAlign = TextAlign.Center)
+        if (juiceColor != null) {
+            Image(
+                painter = painterResource(id = juiceColor.imgRes),
+                contentDescription = text,
+                modifier = Modifier
+                    .padding(bottom = 4.dp)
+                    .size(48.dp)
+            )
+            Text(text = text, color = juiceColor.color, textAlign = TextAlign.Center)
+        } else {
+            Image(
+                painter = painterResource(id = R.drawable.unknown),
+                contentDescription = text,
+                colorFilter = ColorFilter.tint(color = MaterialTheme.colors.onSurface),
+                modifier = Modifier
+                    .padding(bottom = 4.dp)
+                    .size(48.dp)
+            )
+            Text(text = text, color = MaterialTheme.colors.onSurface, textAlign = TextAlign.Center)
+        }
     }
 }
 
 //광고성 여부, 긍/부정 여부를 보여주는 컴포저블
 @Composable
 fun SentimentPowerLinkResultView(
-    sentiment: Sentiment,
+    sentiment: Sentiment?,
     hasPowerLink: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -491,21 +532,28 @@ fun HashtagToken(
 //긍/부정 토큰
 @Composable
 fun SentimentToken(
-    sentiment: Sentiment,
+    sentiment: Sentiment?,
     modifier: Modifier = Modifier
 ) {
-    val text = when(sentiment) {
-        Sentiment.POSITIVE -> stringResource(id = R.string.positive)
-        Sentiment.NEUTRAL -> stringResource(id = R.string.neutrality)
-        Sentiment.NEGATIVE -> stringResource(id = R.string.negative)
+    if(sentiment != null) {
+        WordToken(
+            word = stringResource(
+                id = R.string.sentiment_token,
+                stringResource(id = sentiment.stringRes)
+            ),
+            textColor = sentiment.color,
+            borderColor = sentiment.color,
+            modifier = modifier
+        )
     }
-
-    WordToken(
-        word = stringResource(id = R.string.sentiment_token, text),
-        textColor = sentiment.color,
-        borderColor = sentiment.color,
-        modifier = modifier
-    )
+    else {
+        WordToken(
+            word = stringResource(id = R.string.unknown),
+            textColor = MaterialTheme.colors.onSurface,
+            borderColor = MaterialTheme.colors.onSurface,
+            modifier = modifier
+        )
+    }
 }
 
 //파워링크 토큰
@@ -633,10 +681,6 @@ fun SearchResultItemPreview() {
     }
 }
 
-fun String.deleteBoldTag(): String {
-    return this.replace("<b>", "").replace("</b>", "")
-}
-
 @Preview
 @Composable
 fun AddDataButtonNoLoadingPreview() {
@@ -652,5 +696,33 @@ fun AddDataButtonLoadingPreview() {
 @Preview
 @Composable
 fun LoadingScreenPreview() {
-    LoadingScreen()
+    GreenJuiceTheme {
+        LoadingScreen()
+    }
+}
+
+@Preview(showBackground = true, heightDp = 100)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, heightDp = 100)
+@Composable
+fun UnknownJuicePreview() {
+    GreenJuiceTheme {
+        Surface {
+            JuiceResultView(juiceColor = null)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true,)
+@Composable
+fun UnknownTokenPreview() {
+    GreenJuiceTheme {
+        Surface {
+            SentimentToken(sentiment = null)
+        }
+    }
+}
+
+fun String.deleteBoldTag(): String {
+    return this.replace("<b>", "").replace("</b>", "")
 }

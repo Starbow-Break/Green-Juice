@@ -1,5 +1,9 @@
 package com.starbow.greenjuice.enum
 
 enum class GreenJuiceScreen(val title: String) {
-    MAIN(title = "메인"), RESULT(title = "결과"), SETTING(title = "설정")
+    MAIN(title = "메인"),
+    RESULT(title = "결과"),
+    SETTING(title = "설정"),
+    SIGN_IN(title = "로그인"),
+    SIGN_UP(title = "회원가입")
 }

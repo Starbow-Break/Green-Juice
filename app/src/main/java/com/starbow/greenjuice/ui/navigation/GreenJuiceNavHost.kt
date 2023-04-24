@@ -23,10 +23,7 @@ import com.starbow.greenjuice.enum.GreenJuiceTheme
 import com.starbow.greenjuice.enum.JuiceColor
 import com.starbow.greenjuice.enum.Sentiment
 import com.starbow.greenjuice.ui.AppViewModelProvider
-import com.starbow.greenjuice.ui.screen.FilterDialog
-import com.starbow.greenjuice.ui.screen.MainScreen
-import com.starbow.greenjuice.ui.screen.SearchResultScreen
-import com.starbow.greenjuice.ui.screen.SettingScreen
+import com.starbow.greenjuice.ui.screen.*
 import com.starbow.greenjuice.ui.viewmodel.GreenJuiceNavHostViewModel
 
 @Composable
@@ -118,8 +115,22 @@ fun GreenJuiceNavHost(
                         viewModel.search()
                     }
                 },
-                onClearQuery = { viewModel.changeQuery("") }
+                onClearQuery = { viewModel.changeQuery("") },
+                onClickSignIn = { navController.navigate(GreenJuiceScreen.SIGN_IN.name) },
+                onClickSignUp = { navController.navigate(GreenJuiceScreen.SIGN_UP.name) }
             )
+        }
+
+        composable(
+            route = GreenJuiceScreen.SIGN_IN.name
+        ) {
+            SignInScreen()
+        }
+
+        composable(
+            route = GreenJuiceScreen.SIGN_UP.name
+        ) {
+            SignUpScreen()
         }
 
         composable(

@@ -30,7 +30,7 @@ fun GreenJuiceApp(
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
 
-    val currentScreen: String = backStackEntry?.destination?.route ?: GreenJuiceScreen.MAIN.name
+    val currentScreenName: String = backStackEntry?.destination?.route ?: GreenJuiceScreen.MAIN.name
 
     val themeState = viewModel.themeState.collectAsState()
     val currentTheme = themeState.value
@@ -44,20 +44,23 @@ fun GreenJuiceApp(
     ) {
         Scaffold(
             topBar = {
-                //설정화면인 경우
-                if (currentScreen == GreenJuiceScreen.SETTING.name) {
-                    GreenJuiceTopBar(
-                        title = GreenJuiceScreen.SETTING.title,
-                        canNavigateBack = navController.previousBackStackEntry != null,
-                        navigateUp = { navController.navigateUp() },
-                    )
-                } else {
-                    GreenJuiceCustomTopBar(
-                        showTitle = currentScreen == GreenJuiceScreen.RESULT.name,
-                        canNavigateBack = navController.previousBackStackEntry != null,
-                        navigateUp = { navController.navigateUp() },
-                        navigateSettings = { navController.navigate(GreenJuiceScreen.SETTING.name) }
-                    )
+
+                when(val currentScreen = GreenJuiceScreen.valueOf(currentScreenName)) {
+                    GreenJuiceScreen.SETTING,
+                    GreenJuiceScreen.SIGN_IN,
+                    GreenJuiceScreen.SIGN_UP ->
+                        GreenJuiceTopBar(
+                            title = currentScreen.title,
+                            canNavigateBack = navController.previousBackStackEntry != null,
+                            navigateUp = { navController.navigateUp() },
+                        )
+                    else ->
+                        GreenJuiceCustomTopBar(
+                            showTitle = currentScreen == GreenJuiceScreen.RESULT,
+                            canNavigateBack = navController.previousBackStackEntry != null,
+                            navigateUp = { navController.navigateUp() },
+                            navigateSettings = { navController.navigate(GreenJuiceScreen.SETTING.name) }
+                        )
                 }
             }
         ) { paddingValues ->

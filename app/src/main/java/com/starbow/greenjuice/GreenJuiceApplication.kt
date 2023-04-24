@@ -32,9 +32,9 @@ class GreenJuiceApplication : Application() {
         super.onCreate()
 
         val okHttpClient = OkHttpClient.Builder()
-            .connectTimeout(1000, TimeUnit.SECONDS)
-            .readTimeout(1000, TimeUnit.SECONDS)
-            .writeTimeout(1000, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(300, TimeUnit.SECONDS)
+            .writeTimeout(300, TimeUnit.SECONDS)
             .build()
 
         val retrofitService = Retrofit.Builder()
