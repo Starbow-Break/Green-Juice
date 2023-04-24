@@ -44,8 +44,10 @@ fun GreenJuiceApp(
     ) {
         Scaffold(
             topBar = {
-
-                when(val currentScreen = GreenJuiceScreen.valueOf(currentScreenName)) {
+                when(
+                    val currentScreen = GreenJuiceScreen
+                        .valueOf(currentScreenName.split('/')[0])
+                ) {
                     GreenJuiceScreen.SETTING,
                     GreenJuiceScreen.SIGN_IN,
                     GreenJuiceScreen.SIGN_UP ->

@@ -15,8 +15,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.starbow.greenjuice.R
 import com.starbow.greenjuice.enum.GreenJuiceScreen
 import com.starbow.greenjuice.enum.GreenJuiceTheme
@@ -116,7 +118,11 @@ fun GreenJuiceNavHost(
                     }
                 },
                 onClearQuery = { viewModel.changeQuery("") },
-                onClickSignIn = { navController.navigate(GreenJuiceScreen.SIGN_IN.name) },
+                onClickSignIn = {
+                    navController.navigate(
+                        GreenJuiceScreen.WEB_VIEW.name + "/www.naver.com"
+                    )
+                },
                 onClickSignUp = { navController.navigate(GreenJuiceScreen.SIGN_UP.name) }
             )
         }
@@ -230,6 +236,15 @@ fun GreenJuiceNavHost(
                     }
                     changeThemeOption(themeOption)
                 }
+            )
+        }
+
+        composable(
+            route = GreenJuiceScreen.WEB_VIEW.name + "/{url}",
+            arguments = listOf(navArgument("url") { type = NavType.StringType })
+        ) { backStackEntry ->
+            WebViewScreen(
+                url = backStackEntry.arguments?.getString("url") ?: ""
             )
         }
     }
