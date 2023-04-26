@@ -5,12 +5,12 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Observer
@@ -28,6 +28,8 @@ import com.starbow.greenjuice.ui.AppViewModelProvider
 import com.starbow.greenjuice.ui.screen.*
 import com.starbow.greenjuice.ui.viewmodel.GreenJuiceNavHostViewModel
 
+const val TAG = "GreenJuiceNavHost"
+
 @Composable
 fun GreenJuiceNavHost(
     navController: NavHostController,
@@ -42,11 +44,11 @@ fun GreenJuiceNavHost(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    var selectedJuiceIndex by remember { mutableStateOf(-1) }
-    var selectedSentimentIndex by remember { mutableStateOf(-1) }
-    var selectedThemeIndex by remember { mutableStateOf(-1) }
+    var selectedJuiceIndex by rememberSaveable { mutableStateOf(-1) }
+    var selectedSentimentIndex by rememberSaveable { mutableStateOf(-1) }
+    var selectedThemeIndex by rememberSaveable { mutableStateOf(-1) }
 
-    Log.d("FilterState", "AdState = ${appUiState.value.juiceFilterOption} Sentiment = ${appUiState.value.sentimentFilterOption}")
+    Log.d(TAG, "AdState = ${appUiState.value.juiceFilterOption} Sentiment = ${appUiState.value.sentimentFilterOption}")
 
     val juiceOptions = listOf(
         stringResource(id = R.string.filter_null_text),
@@ -90,7 +92,7 @@ fun GreenJuiceNavHost(
 
     if(selectedJuiceIndex == -1) selectedJuiceIndex = juiceIndex
     if(selectedSentimentIndex == -1) selectedSentimentIndex = sentimentIndex
-    Log.d("SettingScreen", "** $theme ** $selectedThemeIndex, $themeIndex")
+    Log.d(TAG, "** $theme ** $selectedThemeIndex, $themeIndex")
 
     viewModel.showErrorToast.observe(lifecycleOwner, Observer {
         it.getContentIfNotHandled()?.let {
@@ -118,11 +120,7 @@ fun GreenJuiceNavHost(
                     }
                 },
                 onClearQuery = { viewModel.changeQuery("") },
-                onClickSignIn = {
-                    navController.navigate(
-                        GreenJuiceScreen.WEB_VIEW.name + "/www.naver.com"
-                    )
-                },
+                onClickSignIn = { navController.navigate(GreenJuiceScreen.SIGN_IN.name) },
                 onClickSignUp = { navController.navigate(GreenJuiceScreen.SIGN_UP.name) }
             )
         }
@@ -130,13 +128,40 @@ fun GreenJuiceNavHost(
         composable(
             route = GreenJuiceScreen.SIGN_IN.name
         ) {
-            SignInScreen()
+            SignInScreen(
+                onSignInClick = { id, pw ->
+                    try {
+                        if(viewModel.signIn(id, pw)) {
+                            Log.d(TAG, "Sign in Success! Account ID : $id")
+                            Toast.makeText(context, "${id}님 환영합니다!", Toast.LENGTH_SHORT).show()
+                            navController.navigateUp()
+                        }
+                        else {
+                            Toast.makeText(context, "아이디 또는 비밀번호가 틀렸습니다.", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "로그인 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                onClickSignUp = { navController.navigate(GreenJuiceScreen.SIGN_UP.name) }
+            )
         }
 
         composable(
             route = GreenJuiceScreen.SIGN_UP.name
         ) {
-            SignUpScreen()
+            SignUpScreen(
+                onSignUpClick = { id, pw ->
+                    try {
+                        viewModel.signUp(id, pw)
+                        Toast.makeText(context, "회원가입이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                        navController.navigateUp()
+                    }
+                    catch (e: Exception) {
+                        Toast.makeText(context, "회원가입 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
         }
 
         composable(
@@ -210,7 +235,23 @@ fun GreenJuiceNavHost(
                     else viewModel.search()
                 },
                 onClearQuery = { viewModel.changeQuery("") },
-                onAddDataClick = { viewModel.getAdditionalData() }
+                onAddDataClick = { viewModel.getAdditionalData() },
+                onCardClick = { url ->
+                    try {
+                        Log.d(TAG, "url : $url")
+
+                        val args = url
+                            .replace("http://", "").replace("https://", "")
+                            .split('/')
+                        val (base_url, blogId, postId) = arrayOf(args[0], args[1], args[2])
+
+                        Log.d(TAG, "url : $url, base_url : $base_url, blogId: $blogId, postId : $postId")
+
+                        navController.navigate(GreenJuiceScreen.WEB_VIEW.name + "/$base_url/$blogId/$postId")
+                    } catch(e: Exception) {
+                        Toast.makeText(context, "해당 블로그 포스트에 접속할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
             )
         }
 
@@ -240,11 +281,23 @@ fun GreenJuiceNavHost(
         }
 
         composable(
-            route = GreenJuiceScreen.WEB_VIEW.name + "/{url}",
-            arguments = listOf(navArgument("url") { type = NavType.StringType })
+            route = GreenJuiceScreen.WEB_VIEW.name + "/{base_url}/{blogId}/{postId}",
+            arguments = listOf(
+                navArgument("base_url") { type = NavType.StringType },
+                navArgument("blogId") { type = NavType.StringType },
+                navArgument("postId") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
+            val argList = listOf(
+                backStackEntry.arguments?.getString("base_url") ?: "",
+                backStackEntry.arguments?.getString("blogId") ?: "",
+                backStackEntry.arguments?.getString("postId") ?: "",
+            )
+
+            val postUrl = "http://" + argList.joinToString("/")
+
             WebViewScreen(
-                url = backStackEntry.arguments?.getString("url") ?: ""
+                url = postUrl
             )
         }
     }

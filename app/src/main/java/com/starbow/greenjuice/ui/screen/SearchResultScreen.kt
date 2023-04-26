@@ -61,7 +61,8 @@ fun SearchResultScreen(
     onChangeQuery: (String) -> Unit = {},
     onSearch: () -> Unit = {},
     onClearQuery: () -> Unit = {},
-    onAddDataClick: () -> Unit = {}
+    onAddDataClick: () -> Unit = {},
+    onCardClick: (String) -> Unit = {}
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -104,6 +105,7 @@ fun SearchResultScreen(
                         addDataLoading = (netUiState is GreenJuiceNetworkUiState.LoadingAdditional),
                         onAddDataClick = onAddDataClick,
                         showAddButton = showAddButton,
+                        onCardClick = onCardClick,
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f)
@@ -269,6 +271,7 @@ fun SearchResultView(
     showAddButton: Boolean,
     addDataLoading: Boolean,
     onAddDataClick: () -> Unit,
+    onCardClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -300,7 +303,11 @@ fun SearchResultView(
 
                 /* 현재 서버가 구현되지 않아 UI를 테스트 하는 코드로 작성됨 */
                 items(searchItems) { data ->
-                    SearchResultItem(juiceItem = data, modifier = Modifier.padding(4.dp))
+                    SearchResultItem(
+                        juiceItem = data,
+                        onClick = onCardClick,
+                        modifier = Modifier.padding(4.dp)
+                    )
                 }
 
                 /*추가 데이터를 가져오는 버튼*/

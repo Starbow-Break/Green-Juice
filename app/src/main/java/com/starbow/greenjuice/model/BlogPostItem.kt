@@ -4,7 +4,6 @@ import com.starbow.greenjuice.enum.JuiceColor
 import com.starbow.greenjuice.enum.Sentiment
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.util.Date
 
 //서버로부터 받은 데이터를 여기에 객체화해서 저장
 @Serializable
@@ -39,6 +38,7 @@ fun BlogPostItem.toJuiceItem(): JuiceItem {
     }.map { hashtag -> "#$hashtag" }
 
     return JuiceItem(
+        postUrl = link,
         title = title,
         description = description,
         juiceColor = juiceColor,

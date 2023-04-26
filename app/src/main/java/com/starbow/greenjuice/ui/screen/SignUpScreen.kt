@@ -19,6 +19,7 @@ import com.starbow.greenjuice.ui.theme.GreenJuiceTheme
 
 @Composable
 fun SignUpScreen(
+    onSignUpClick: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -35,22 +36,28 @@ fun SignUpScreen(
                 value = id,
                 onValueChange = { id = it },
                 label = { Text(stringResource(id = R.string.id)) },
+                maxLines = 1,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
             )
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text(stringResource(id = R.string.password)) },
+                maxLines = 1,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
             )
             OutlinedTextField(
                 value = passwordCheck,
                 onValueChange = { passwordCheck = it },
                 label = { Text(stringResource(id = R.string.password_check)) },
+                maxLines = 1,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
             )
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    onSignUpClick(id, password)
+                },
+                enabled = validId(id) and validPassword(password) and (password == passwordCheck),
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
             ) {
                 Text(stringResource(id = R.string.sign_up))
@@ -63,6 +70,18 @@ fun SignUpScreen(
 @Composable
 fun SignUpScreenPreview() {
     GreenJuiceTheme {
-        SignUpScreen()
+        SignUpScreen(
+            onSignUpClick = {a, b -> }
+        )
     }
+}
+
+fun validId(id: String): Boolean {
+    val regexId = "[a-zA-Z\\d]{6,18}".toRegex()
+    return regexId.matches(id)
+}
+
+fun validPassword(password: String): Boolean {
+    val regexPw = "[a-zA-Z\\d]{6,18}".toRegex()
+    return regexPw.matches(password)
 }

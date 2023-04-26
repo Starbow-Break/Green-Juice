@@ -13,6 +13,7 @@ sealed interface GreenJuiceNetworkUiState {
 }
 
 data class GreenJuiceUiState(
+    val accountId: String? = null,
     val searchQuery: String = "", //검색 쿼리
     val onFilter: Boolean = false, //필터 기능 사용 여부
     val juiceFilterOption: JuiceColor? = null, //광고 여부 필터

@@ -1,17 +1,12 @@
 package com.starbow.greenjuice.ui.screen
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.starbow.greenjuice.ui.theme.GreenJuiceTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -19,6 +14,8 @@ import com.starbow.greenjuice.R
 
 @Composable
 fun SignInScreen(
+    onSignInClick: (String, String) -> Unit,
+    onClickSignUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -29,13 +26,14 @@ fun SignInScreen(
                 .padding(horizontal = 8.dp)
                 .align(Alignment.Center)
         ) {
-            var id by rememberSaveable { mutableStateOf("") }
-            var password by rememberSaveable { mutableStateOf("") }
+            var id by rememberSaveable { mutableStateOf("") } //텍스트 필드에 입력된 아이디
+            var password by rememberSaveable { mutableStateOf("") } //텍스트 필드에 입력된 비밀번호
 
             OutlinedTextField(
                 value = id,
                 onValueChange = { id = it },
                 label = { Text(stringResource(id = R.string.id)) },
+                maxLines = 1,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
@@ -44,17 +42,39 @@ fun SignInScreen(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text(stringResource(id = R.string.password)) },
+                maxLines = 1,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
             )
             Button(
-                onClick = { /*TODO*/ },
+                onClick = { onSignInClick(id, password) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 12.dp)
             ) {
                 Text(stringResource(id = R.string.sign_in))
+            }
+        }
+
+        Row (
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 48.dp)
+        ) {
+            Text(
+                text = "계정이 없으신가요?",
+                color = MaterialTheme.colors.primary,
+                modifier = Modifier.padding(8.dp)
+            )
+            Divider(
+                color = MaterialTheme.colors.primary,
+                modifier = Modifier
+                    .width(2.dp)
+                    .height(16.dp)
+            )
+            TextButton(onClick = onClickSignUp) {
+                Text(text = stringResource(id = R.string.sign_up))
             }
         }
     }
@@ -64,6 +84,9 @@ fun SignInScreen(
 @Composable
 fun SignInScreenPreview() {
     GreenJuiceTheme {
-        SignInScreen()
+        SignInScreen(
+            onSignInClick = {a, b -> },
+            onClickSignUp = {}
+        )
     }
 }

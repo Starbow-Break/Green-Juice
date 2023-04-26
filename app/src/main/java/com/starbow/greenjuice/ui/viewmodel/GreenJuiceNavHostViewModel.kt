@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.starbow.greenjuice.Event
 import com.starbow.greenjuice.data.GreenJuiceRepository
+import com.starbow.greenjuice.data.SampleDataSource
 import com.starbow.greenjuice.enum.JuiceColor
 import com.starbow.greenjuice.enum.Sentiment
 import com.starbow.greenjuice.model.JuiceStatistics
@@ -22,7 +23,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
 
-const val AMOUNT_DATA = 5 //요청할 때 마다 받아올 데이터 갯수
+const val AMOUNT_DATA = 1 //요청할 때 마다 받아올 데이터 갯수
 const val TAG = "NavHostViewModel"
 
 class GreenJuiceNavHostViewModel(
@@ -74,6 +75,24 @@ class GreenJuiceNavHostViewModel(
                 sentimentStatistics = sentimentStatistics
             )
         }
+    }
+
+    //로그인
+    fun signIn(id: String, password: String): Boolean {
+        val result = SampleDataSource.authentication(id, password)
+
+        if(result) {
+            _uiState.update { currentUiState ->
+                currentUiState.copy(accountId = id)
+            }
+        }
+
+        return result
+    }
+
+    //회원 가입
+    fun signUp(id: String, password: String) {
+        SampleDataSource.addAccount(id, password)
     }
 
     //검색 결과 얻기 (필터도 포함된 결과)

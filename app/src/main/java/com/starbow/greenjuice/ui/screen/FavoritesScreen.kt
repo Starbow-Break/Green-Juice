@@ -18,7 +18,7 @@ fun FavoritesScreen(
         modifier = modifier
     ) {
         items(favoritesList) { favorites ->
-            SearchResultItem(juiceItem = favorites)
+            SearchResultItem(juiceItem = favorites, onClick = {})
         }
     }
 }
