@@ -23,35 +23,41 @@ fun SignInScreen(
     ) {
         Column(
             modifier = modifier
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 32.dp)
                 .align(Alignment.Center)
         ) {
             var id by rememberSaveable { mutableStateOf("") } //텍스트 필드에 입력된 아이디
             var password by rememberSaveable { mutableStateOf("") } //텍스트 필드에 입력된 비밀번호
 
-            OutlinedTextField(
+            TextField(
                 value = id,
-                onValueChange = { id = it },
+                onValueChange = {
+                    val regex = "\\w*".toRegex()
+                    if(regex.matches(it)) id = it
+                },
                 label = { Text(stringResource(id = R.string.id)) },
                 maxLines = 1,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 4.dp)
+                    .padding(vertical = 8.dp)
             )
-            OutlinedTextField(
+            TextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = {
+                    val regex = "[A-Za-z\\d]*".toRegex()
+                    if(regex.matches(it)) password = it
+                },
                 label = { Text(stringResource(id = R.string.password)) },
                 maxLines = 1,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 4.dp)
+                    .padding(vertical = 8.dp)
             )
             Button(
                 onClick = { onSignInClick(id, password) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 12.dp)
+                    .padding(top = 24.dp)
             ) {
                 Text(stringResource(id = R.string.sign_in))
             }

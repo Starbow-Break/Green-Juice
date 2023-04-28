@@ -21,10 +21,12 @@ import com.starbow.greenjuice.ui.theme.GreenJuiceTheme
 fun MainScreen(
     modifier: Modifier = Modifier,
     query: String = "",
+    isSignIn: Boolean = false,
     onChangeQuery: (String) -> Unit = {},
     onSearch: () -> Unit = {},
     onClearQuery: () -> Unit = {},
     onClickSignIn: () -> Unit = {},
+    onClickSignOut: () -> Unit = {},
     onClickSignUp: () -> Unit = {},
 ) {
     Surface(
@@ -57,14 +59,29 @@ fun MainScreen(
                     onClearQuery = onClearQuery,
                 )
             }
-            
-            SignInSignUpButton(
-                onClickSignIn = onClickSignIn,
-                onClickSignUp = onClickSignUp,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 32.dp)
-            )
+
+            if(isSignIn) {
+                TextButton(
+                    onClick = onClickSignOut,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 32.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.sign_out),
+                        color = MaterialTheme.colors.primary
+                    )
+                }
+            }
+            else {
+                SignInSignUpButton(
+                    onClickSignIn = onClickSignIn,
+                    onClickSignUp = onClickSignUp,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 48.dp)
+                )
+            }
         }
     }
 }

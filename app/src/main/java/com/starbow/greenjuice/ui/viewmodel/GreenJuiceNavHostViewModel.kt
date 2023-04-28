@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 
 const val AMOUNT_DATA = 1 //요청할 때 마다 받아올 데이터 갯수
+const val NO_ACCOUNT = ""
 const val TAG = "NavHostViewModel"
 
 class GreenJuiceNavHostViewModel(
@@ -77,23 +78,7 @@ class GreenJuiceNavHostViewModel(
         }
     }
 
-    //로그인
-    fun signIn(id: String, password: String): Boolean {
-        val result = SampleDataSource.authentication(id, password)
 
-        if(result) {
-            _uiState.update { currentUiState ->
-                currentUiState.copy(accountId = id)
-            }
-        }
-
-        return result
-    }
-
-    //회원 가입
-    fun signUp(id: String, password: String) {
-        SampleDataSource.addAccount(id, password)
-    }
 
     //검색 결과 얻기 (필터도 포함된 결과)
     private fun getSearchItems() {

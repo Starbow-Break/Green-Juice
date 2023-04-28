@@ -9,16 +9,16 @@ import com.starbow.greenjuice.R
 
 //설정 화면 (테마 설정)
 @Composable
-fun SettingScreen(
-    settingOptions: List<String>,
-    selectedSettingOptionIndex: Int,
+fun ThemeSettingScreen(
+    themeOptions: List<String>,
+    selectedThemeOptionIndex: Int,
     onSelectedChanged: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     RadioGroup(
         groupTitle = stringResource(id = R.string.theme),
-        optionList = settingOptions,
-        selectedIndex = selectedSettingOptionIndex,
+        optionList = themeOptions,
+        selectedIndex = selectedThemeOptionIndex,
         onChangeSelected = { onSelectedChanged(it) },
         modifier = modifier.padding(16.dp)
     )

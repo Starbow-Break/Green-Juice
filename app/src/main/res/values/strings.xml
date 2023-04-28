@@ -47,5 +47,10 @@
     <string name="password">비밀번호</string>
     <string name="password_check">비밀번호 확인</string>
     <string name="sign_in">로그인</string>
+    <string name="sign_in_success">%s님 환영합니다!</string>
+    <string name="failed_find_account">존재하지 않는 계정정보입니다.</string>
+    <string name="sign_in_error">로그인 중 오류가 발생했습니다.</string>
+    <string name="sign_out">로그아웃</string>
+    <string name="sign_out_success">로그아웃 되었습니다.</string>
     <string name="sign_up">회원가입</string>
 </resources>

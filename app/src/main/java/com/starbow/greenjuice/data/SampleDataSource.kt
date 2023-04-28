@@ -3,6 +3,7 @@ package com.starbow.greenjuice.data
 import com.starbow.greenjuice.enum.JuiceColor
 import com.starbow.greenjuice.enum.Sentiment
 import com.starbow.greenjuice.model.JuiceItem
+import com.starbow.greenjuice.network.Account
 
 object SampleDataSource {
     //초기 데이터
@@ -133,7 +134,7 @@ object SampleDataSource {
 
     fun hasId(id: String): Boolean {
         for(account in accountList) {
-            if(account.id == id) return true
+            if(account.getId() == id) return true
         }
 
         return false
@@ -145,10 +146,8 @@ object SampleDataSource {
 
     fun authentication(id: String, password: String): Boolean {
         for(account in accountList)
-            if((account.id == id) and (account.password == password)) return true
+            if((account.getId() == id) and (account.getPassword() == password)) return true
 
         return false
     }
-
-    data class Account(val id: String, val password: String)
 }

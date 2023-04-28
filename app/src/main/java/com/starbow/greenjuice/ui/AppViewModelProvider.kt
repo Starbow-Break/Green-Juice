@@ -15,7 +15,10 @@ object AppViewModelProvider {
         }
 
         initializer {
-            GreenJuiceAppViewModel(greenJuiceApplication().container.greenJuicePreferencesRepository)
+            GreenJuiceAppViewModel(
+                greenJuiceApplication().container.greenJuiceRepository,
+                greenJuiceApplication().container.greenJuicePreferencesRepository
+            )
         }
     }
 }

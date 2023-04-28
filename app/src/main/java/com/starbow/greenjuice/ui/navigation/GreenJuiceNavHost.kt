@@ -35,6 +35,10 @@ fun GreenJuiceNavHost(
     navController: NavHostController,
     theme: GreenJuiceTheme,
     changeThemeOption: (GreenJuiceTheme) -> Unit,
+    isSignIn: Boolean,
+    signIn: (String, String) -> Boolean,
+    signOut: () -> Unit,
+    signUp: (String, String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: GreenJuiceNavHostViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -64,7 +68,7 @@ fun GreenJuiceNavHost(
         stringResource(id = Sentiment.NEGATIVE.stringRes)
     )
 
-    val settingOptions = listOf(
+    val themeOptions = listOf(
         stringResource(id = GreenJuiceTheme.LIGHT.stringRes),
         stringResource(id = GreenJuiceTheme.DARK.stringRes),
         stringResource(id = GreenJuiceTheme.SYSTEM.stringRes)
@@ -110,6 +114,7 @@ fun GreenJuiceNavHost(
         ) {
             MainScreen(
                 query = viewModel.inputQuery,
+                isSignIn = isSignIn,
                 onChangeQuery = { viewModel.changeQuery(it) },
                 onSearch = {
                     if(viewModel.inputQuery.isBlank())
@@ -121,6 +126,11 @@ fun GreenJuiceNavHost(
                 },
                 onClearQuery = { viewModel.changeQuery("") },
                 onClickSignIn = { navController.navigate(GreenJuiceScreen.SIGN_IN.name) },
+                onClickSignOut = {
+                    signOut()
+                    Toast.makeText(context, R.string.sign_out_success, Toast.LENGTH_SHORT).show()
+                    Log.d("Account", "Sign Out!")
+                },
                 onClickSignUp = { navController.navigate(GreenJuiceScreen.SIGN_UP.name) }
             )
         }
@@ -131,16 +141,16 @@ fun GreenJuiceNavHost(
             SignInScreen(
                 onSignInClick = { id, pw ->
                     try {
-                        if(viewModel.signIn(id, pw)) {
-                            Log.d(TAG, "Sign in Success! Account ID : $id")
-                            Toast.makeText(context, "${id}님 환영합니다!", Toast.LENGTH_SHORT).show()
+                        if(signIn(id, pw)) {
+                            Log.d("Account", "Sign in Success! Account ID : $id")
+                            Toast.makeText(context, context.getString(R.string.sign_in_success, id), Toast.LENGTH_SHORT).show()
                             navController.navigateUp()
                         }
                         else {
-                            Toast.makeText(context, "아이디 또는 비밀번호가 틀렸습니다.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, R.string.failed_find_account, Toast.LENGTH_SHORT).show()
                         }
                     } catch (e: Exception) {
-                        Toast.makeText(context, "로그인 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.sign_in_error, Toast.LENGTH_SHORT).show()
                     }
                 },
                 onClickSignUp = { navController.navigate(GreenJuiceScreen.SIGN_UP.name) }
@@ -153,7 +163,7 @@ fun GreenJuiceNavHost(
             SignUpScreen(
                 onSignUpClick = { id, pw ->
                     try {
-                        viewModel.signUp(id, pw)
+                        signUp(id, pw)
                         Toast.makeText(context, "회원가입이 완료되었습니다.", Toast.LENGTH_SHORT).show()
                         navController.navigateUp()
                     }
@@ -256,13 +266,13 @@ fun GreenJuiceNavHost(
         }
 
         composable(
-            route = GreenJuiceScreen.SETTING.name
+            route = GreenJuiceScreen.THEME.name
         ) {
             if(selectedThemeIndex == -1) selectedThemeIndex = themeIndex
 
-            SettingScreen(
-                settingOptions = settingOptions,
-                selectedSettingOptionIndex = selectedThemeIndex,
+            ThemeSettingScreen(
+                themeOptions = themeOptions,
+                selectedThemeOptionIndex = selectedThemeIndex,
                 onSelectedChanged = {
                     selectedThemeIndex = it
 
