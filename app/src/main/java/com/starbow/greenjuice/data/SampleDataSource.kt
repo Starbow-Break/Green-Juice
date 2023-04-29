@@ -14,6 +14,7 @@ object SampleDataSource {
             description = "description1",
             juiceColor = JuiceColor.GREEN,
             sentiment = Sentiment.POSITIVE,
+            favorites = false,
             hasPowerLink = true,
             hashtags = listOf("keyword1_1", "keyword1_2", "keyword1_3")
         ),
@@ -23,6 +24,7 @@ object SampleDataSource {
             description = "description2",
             juiceColor = JuiceColor.RED,
             sentiment = Sentiment.POSITIVE,
+            favorites = false,
             hasPowerLink = false,
             hashtags = listOf("keyword2_1", "keyword2_2")
         ),
@@ -32,6 +34,7 @@ object SampleDataSource {
             description = "description3",
             juiceColor = JuiceColor.GREEN,
             sentiment = Sentiment.NEUTRAL,
+            favorites = true,
             hasPowerLink = true,
             hashtags = listOf("keyword3_1", "keyword3_2", "keyword3_3", "keyword3_4", "keyword3_5")
         ),
@@ -41,6 +44,7 @@ object SampleDataSource {
             description = "description4",
             juiceColor = JuiceColor.ORANGE,
             sentiment = Sentiment.POSITIVE,
+            favorites = true,
             hasPowerLink = true,
             hashtags = listOf("keyword4_1")
         ),
@@ -50,6 +54,7 @@ object SampleDataSource {
             description = "description5",
             juiceColor = JuiceColor.GREEN,
             sentiment = Sentiment.NEGATIVE,
+            favorites = false,
             hasPowerLink = false,
             hashtags = listOf("keyword5_1", "keyword5_2", "keyword5_3", "keyword5_4")
         ),
@@ -59,6 +64,7 @@ object SampleDataSource {
             description = "description6",
             juiceColor = JuiceColor.ORANGE,
             sentiment = Sentiment.POSITIVE,
+            favorites = true,
             hasPowerLink = false,
             hashtags = listOf("keyword6_1", "keyword6_2", "keyword6_3")
         ),
@@ -68,6 +74,7 @@ object SampleDataSource {
             description = "description7",
             juiceColor = JuiceColor.GREEN,
             sentiment = Sentiment.NEGATIVE,
+            favorites = true,
             hasPowerLink = true,
             hashtags = listOf("keyword7_1", "keyword7_2")
         ),
@@ -77,6 +84,7 @@ object SampleDataSource {
             description = "description8",
             juiceColor = JuiceColor.GREEN,
             sentiment = Sentiment.NEUTRAL,
+            favorites = true,
             hasPowerLink = false,
             hashtags = listOf("keyword8_1", "keyword8_2")
         ),
@@ -86,6 +94,7 @@ object SampleDataSource {
             description = "description9",
             juiceColor = JuiceColor.RED,
             sentiment = Sentiment.POSITIVE,
+            favorites = false,
             hasPowerLink = true,
             hashtags = listOf("keyword9_1")
         ),
@@ -95,6 +104,7 @@ object SampleDataSource {
             description = "description10",
             juiceColor = JuiceColor.GREEN,
             sentiment = Sentiment.NEGATIVE,
+            favorites = true,
             hasPowerLink = false,
             hashtags = listOf("keyword10_1", "keyword10_2", "keyword10_3", "keyword10_4",  "keyword10_5", "keyword10_6")
         ),
@@ -104,6 +114,7 @@ object SampleDataSource {
             description = "description11",
             juiceColor = JuiceColor.RED,
             sentiment = Sentiment.NEUTRAL,
+            favorites = true,
             hasPowerLink = true,
             hashtags = listOf("keyword11_1", "keyword11_2", "keyword11_3")
         ),
@@ -113,6 +124,7 @@ object SampleDataSource {
             description = "description12",
             juiceColor = JuiceColor.GREEN,
             sentiment = Sentiment.POSITIVE,
+            favorites = false,
             hasPowerLink = true,
             hashtags = listOf("keyword12_1")
         )

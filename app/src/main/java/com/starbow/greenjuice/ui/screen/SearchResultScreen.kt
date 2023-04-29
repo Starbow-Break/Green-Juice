@@ -1,41 +1,26 @@
 package com.starbow.greenjuice.ui.screen
 
-import android.content.res.Configuration
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.futured.donut.compose.DonutProgress
 import app.futured.donut.compose.data.DonutModel
 import app.futured.donut.compose.data.DonutSection
-import com.google.accompanist.flowlayout.FlowCrossAxisAlignment
-import com.google.accompanist.flowlayout.FlowMainAxisAlignment
-import com.google.accompanist.flowlayout.FlowRow
 import com.starbow.greenjuice.R
 import com.starbow.greenjuice.data.SampleDataSource
 import com.starbow.greenjuice.enum.JuiceColor
@@ -62,7 +47,7 @@ fun SearchResultScreen(
     onSearch: () -> Unit = {},
     onClearQuery: () -> Unit = {},
     onAddDataClick: () -> Unit = {},
-    onCardClick: (String) -> Unit = {}
+    onItemClick: (String) -> Unit = {}
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -105,7 +90,7 @@ fun SearchResultScreen(
                         addDataLoading = (netUiState is GreenJuiceNetworkUiState.LoadingAdditional),
                         onAddDataClick = onAddDataClick,
                         showAddButton = showAddButton,
-                        onCardClick = onCardClick,
+                        onCardClick = onItemClick,
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f)
@@ -305,7 +290,7 @@ fun SearchResultView(
                 items(searchItems) { data ->
                     SearchResultItem(
                         juiceItem = data,
-                        onClick = onCardClick,
+                        onCardClick = onCardClick,
                         modifier = Modifier.padding(4.dp)
                     )
                 }

@@ -15,7 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -164,7 +164,7 @@ fun RadioGroupPreview() {
 @Composable
 fun SearchResultItem(
     juiceItem: JuiceItem,
-    onClick: (String) -> Unit,
+    onCardClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -172,7 +172,7 @@ fun SearchResultItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable {
-                onClick(juiceItem.postUrl)
+                onCardClick(juiceItem.postUrl)
             }
     ) {
         Column(
@@ -198,15 +198,12 @@ fun SearchResultItem(
                             }
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.star_outline),
+                                painter = painterResource(
+                                    id = if(juiceItem.favorites) R.drawable.star else R.drawable.star_outline
+                                ),
                                 tint = YellowA400,
                                 contentDescription = null
                             )
-                            /*Icon(
-                                painter = painterResource(id = R.drawable.star),
-                                tint = YellowA400,
-                                contentDescription = null
-                            )*/
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
@@ -458,13 +455,14 @@ fun UnknownTokenPreview() {
 fun SearchResultItemPreview() {
     GreenJuiceTheme {
         SearchResultItem(
-            onClick = {},
+            onCardClick = {},
             juiceItem = JuiceItem(
                 postUrl = "",
                 title = "Title",
                 description = "description",
                 juiceColor = JuiceColor.RED,
                 sentiment = Sentiment.POSITIVE,
+                favorites = false,
                 hasPowerLink = false,
                 hashtags = listOf("apple", "banana", "grape", "kiwi", "pineapple", "mint", "dragon fruit")
             )

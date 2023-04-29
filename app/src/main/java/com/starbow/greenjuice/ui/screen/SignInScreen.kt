@@ -1,5 +1,6 @@
 package com.starbow.greenjuice.ui.screen
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -8,6 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.starbow.greenjuice.ui.theme.GreenJuiceTheme
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.starbow.greenjuice.R
@@ -18,8 +21,16 @@ fun SignInScreen(
     onClickSignUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
+
     Box(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    focusManager.clearFocus()
+                }
+            }
     ) {
         Column(
             modifier = modifier
@@ -91,7 +102,7 @@ fun SignInScreen(
 fun SignInScreenPreview() {
     GreenJuiceTheme {
         SignInScreen(
-            onSignInClick = {a, b -> },
+            onSignInClick = {_, _ -> },
             onClickSignUp = {}
         )
     }

@@ -20,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.starbow.greenjuice.R
+import com.starbow.greenjuice.data.SampleDataSource
 import com.starbow.greenjuice.enum.GreenJuiceScreen
 import com.starbow.greenjuice.enum.GreenJuiceTheme
 import com.starbow.greenjuice.enum.JuiceColor
@@ -37,7 +38,6 @@ fun GreenJuiceNavHost(
     changeThemeOption: (GreenJuiceTheme) -> Unit,
     isSignIn: Boolean,
     signIn: (String, String) -> Boolean,
-    signOut: () -> Unit,
     signUp: (String, String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: GreenJuiceNavHostViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -126,11 +126,6 @@ fun GreenJuiceNavHost(
                 },
                 onClearQuery = { viewModel.changeQuery("") },
                 onClickSignIn = { navController.navigate(GreenJuiceScreen.SIGN_IN.name) },
-                onClickSignOut = {
-                    signOut()
-                    Toast.makeText(context, R.string.sign_out_success, Toast.LENGTH_SHORT).show()
-                    Log.d("Account", "Sign Out!")
-                },
                 onClickSignUp = { navController.navigate(GreenJuiceScreen.SIGN_UP.name) }
             )
         }
@@ -143,7 +138,7 @@ fun GreenJuiceNavHost(
                     try {
                         if(signIn(id, pw)) {
                             Log.d("Account", "Sign in Success! Account ID : $id")
-                            Toast.makeText(context, context.getString(R.string.sign_in_success, id), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.sign_in_success, id), Toast.LENGTH_LONG).show()
                             navController.navigateUp()
                         }
                         else {
@@ -164,7 +159,7 @@ fun GreenJuiceNavHost(
                 onSignUpClick = { id, pw ->
                     try {
                         signUp(id, pw)
-                        Toast.makeText(context, "회원가입이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "회원가입이 완료되었습니다.", Toast.LENGTH_LONG).show()
                         navController.navigateUp()
                     }
                     catch (e: Exception) {
@@ -246,7 +241,7 @@ fun GreenJuiceNavHost(
                 },
                 onClearQuery = { viewModel.changeQuery("") },
                 onAddDataClick = { viewModel.getAdditionalData() },
-                onCardClick = { url ->
+                onItemClick = { url ->
                     try {
                         Log.d(TAG, "url : $url")
 
@@ -306,8 +301,29 @@ fun GreenJuiceNavHost(
 
             val postUrl = "http://" + argList.joinToString("/")
 
-            WebViewScreen(
-                url = postUrl
+            WebViewScreen(url = postUrl)
+        }
+
+        composable(
+            route = GreenJuiceScreen.FAVORITES.name
+        ) { 
+            FavoritesScreen(
+                favoritesList = SampleDataSource.dataList.filter {item -> item.favorites},
+                onItemClick = { url ->
+                    try {
+                        Log.d(TAG, "url : $url")
+                        val args = url
+                            .replace("http://", "").replace("https://", "")
+                            .split('/')
+                        val (base_url, blogId, postId) = arrayOf(args[0], args[1], args[2])
+
+                        Log.d(TAG, "url : $url, base_url : $base_url, blogId: $blogId, postId : $postId")
+
+                        navController.navigate(GreenJuiceScreen.WEB_VIEW.name + "/$base_url/$blogId/$postId")
+                    } catch(e: Exception) {
+                        Toast.makeText(context, "해당 블로그 포스트에 접속할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
             )
         }
     }

@@ -53,4 +53,5 @@
     <string name="sign_out">로그아웃</string>
     <string name="sign_out_success">로그아웃 되었습니다.</string>
     <string name="sign_up">회원가입</string>
+    <string name="favorites">즐겨찾기</string>
 </resources>

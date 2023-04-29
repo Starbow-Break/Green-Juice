@@ -22,7 +22,7 @@
         키보드가 올라오면 EditText를 resize를 해서 키보드에 UI가 가려지는걸 방지해줌-->
         <activity
             android:name=".MainActivity"
-            android:windowSoftInputMode="adjustResize"
+            android:windowSoftInputMode="adjustPan"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.GreenJuice">

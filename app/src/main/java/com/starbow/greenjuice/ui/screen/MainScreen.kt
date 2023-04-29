@@ -26,7 +26,6 @@ fun MainScreen(
     onSearch: () -> Unit = {},
     onClearQuery: () -> Unit = {},
     onClickSignIn: () -> Unit = {},
-    onClickSignOut: () -> Unit = {},
     onClickSignUp: () -> Unit = {},
 ) {
     Surface(
@@ -36,7 +35,13 @@ fun MainScreen(
         val focusManager = LocalFocusManager.current
 
         Box (
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures {
+                        focusManager.clearFocus()
+                    }
+                }
         ) {
             Column(
                 verticalArrangement = Arrangement.Center,
@@ -45,13 +50,9 @@ fun MainScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
                     .align(Alignment.Center)
-                    .pointerInput(Unit) {
-                        detectTapGestures {
-                            focusManager.clearFocus()
-                        }
-                    }
             ) {
                 AppTitle(modifier = Modifier.padding(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 SearchBar(
                     query = query,
                     onChangeQuery = onChangeQuery,
@@ -60,20 +61,7 @@ fun MainScreen(
                 )
             }
 
-            if(isSignIn) {
-                TextButton(
-                    onClick = onClickSignOut,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 32.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.sign_out),
-                        color = MaterialTheme.colors.primary
-                    )
-                }
-            }
-            else {
+            if(!isSignIn) {
                 SignInSignUpButton(
                     onClickSignIn = onClickSignIn,
                     onClickSignUp = onClickSignUp,

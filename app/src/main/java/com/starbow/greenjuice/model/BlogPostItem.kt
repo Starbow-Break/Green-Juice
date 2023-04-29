@@ -43,6 +43,7 @@ fun BlogPostItem.toJuiceItem(): JuiceItem {
         description = description,
         juiceColor = juiceColor,
         sentiment = sentiment,
+        favorites = false,
         hasPowerLink = powerLink == 1,
         hashtags = hashtags
     )
