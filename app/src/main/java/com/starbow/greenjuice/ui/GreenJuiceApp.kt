@@ -104,11 +104,13 @@ fun GreenJuiceApp(
             ) {
                 GreenJuiceNavHost(
                     navController = navController,
+                    accountId = viewModel.curAccount,
                     theme = currentTheme,
                     changeThemeOption = { theme -> viewModel.updateThemeOption(theme) },
                     isSignIn = viewModel.isSignIn(),
                     signIn = { id, pw -> viewModel.signIn(id, pw) },
-                    signUp = { id, pw -> viewModel.signUp(id, pw) }
+                    signUp = { id, pw -> viewModel.signUp(id, pw) },
+                    isDuplicatedId = { id -> viewModel.isDuplicatedId(id) }
                 )
             }
         }

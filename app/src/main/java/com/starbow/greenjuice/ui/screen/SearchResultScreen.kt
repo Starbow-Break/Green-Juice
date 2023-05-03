@@ -1,5 +1,6 @@
 package com.starbow.greenjuice.ui.screen
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import app.futured.donut.compose.DonutProgress
 import app.futured.donut.compose.data.DonutModel
 import app.futured.donut.compose.data.DonutSection
+import com.starbow.greenjuice.NO_ACCOUNT
 import com.starbow.greenjuice.R
 import com.starbow.greenjuice.data.SampleDataSource
 import com.starbow.greenjuice.enum.JuiceColor
@@ -39,15 +41,19 @@ fun SearchResultScreen(
     juiceStatistics: JuiceStatistics,
     sentimentStatistics: SentimentStatistics,
     searchItems: List<JuiceItem>,
+    favoritesItems: List<Int>,
     modifier: Modifier = Modifier,
     query: String = "",
+    accountId: String = NO_ACCOUNT,
     showAddButton: Boolean = true,
     onFilterClicked: () -> Unit = {},
     onChangeQuery: (String) -> Unit = {},
     onSearch: () -> Unit = {},
     onClearQuery: () -> Unit = {},
     onAddDataClick: () -> Unit = {},
-    onItemClick: (String) -> Unit = {}
+    onItemClick: (String) -> Unit = {},
+    addFavorites: (String, Int) -> Unit = {_, _ -> },
+    deleteFavorites: (String, Int) -> Unit = {_, _ -> },
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -83,14 +89,18 @@ fun SearchResultScreen(
                     NetworkErrorScreen()
                 else -> {
                     SearchResultView(
+                        accountId = accountId,
                         amountOfItem = amountOfItem,
                         juiceStatistics = juiceStatistics,
                         sentimentStatistics = sentimentStatistics,
                         searchItems = searchItems,
+                        favoritesItems = favoritesItems,
                         addDataLoading = (netUiState is GreenJuiceNetworkUiState.LoadingAdditional),
                         onAddDataClick = onAddDataClick,
                         showAddButton = showAddButton,
                         onCardClick = onItemClick,
+                        addFavorites = addFavorites,
+                        deleteFavorites = deleteFavorites,
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f)
@@ -253,11 +263,15 @@ fun SearchResultView(
     juiceStatistics: JuiceStatistics,
     sentimentStatistics: SentimentStatistics,
     searchItems: List<JuiceItem>,
+    favoritesItems: List<Int>,
     showAddButton: Boolean,
     addDataLoading: Boolean,
     onAddDataClick: () -> Unit,
     onCardClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    addFavorites: (String, Int) -> Unit,
+    deleteFavorites: (String, Int) -> Unit,
+    modifier: Modifier = Modifier,
+    accountId: String = NO_ACCOUNT
 ) {
     Card(
         elevation = 4.dp,
@@ -290,7 +304,19 @@ fun SearchResultView(
                 items(searchItems) { data ->
                     SearchResultItem(
                         juiceItem = data,
+                        showFavorites = accountId != NO_ACCOUNT,
                         onCardClick = onCardClick,
+                        addFavorites = { postId ->
+                            Log.d("Favorites", "id = ${postId}인 게시글이 ${accountId}의 츨겨찾기에 추가")
+                            addFavorites(accountId, postId)
+                            Log.d("Favorites", "${accountId}의 츨겨찾기 목록 = ${SampleDataSource.favoritesMap[accountId] ?: mutableListOf()}")
+                        },
+                        deleteFavorites = {postId ->
+                            Log.d("Favorites", "id = ${postId}인 게시글이 ${accountId}의 츨겨찾기에서 제거")
+                            deleteFavorites(accountId, postId)
+                            Log.d("Favorites", "${accountId}의 츨겨찾기 목록 = ${SampleDataSource.favoritesMap[accountId] ?: mutableListOf()}")
+                        },
+                        isFavorite = favoritesItems.contains(data.id) ?: false,
                         modifier = Modifier.padding(4.dp)
                     )
                 }
@@ -342,6 +368,7 @@ fun LoadingPreview() {
             netUiState = GreenJuiceNetworkUiState.Loading,
             amountOfItem = 9,
             searchItems = SampleDataSource.dataList,
+            favoritesItems = listOf(),
             juiceStatistics = JuiceStatistics(3, 4, 2),
             sentimentStatistics = SentimentStatistics(5, 4)
         )
@@ -356,6 +383,7 @@ fun NetWorkErrorPreview() {
             netUiState = GreenJuiceNetworkUiState.Error,
             amountOfItem = 9,
             searchItems = SampleDataSource.dataList,
+            favoritesItems = listOf(),
             juiceStatistics = JuiceStatistics(3, 4, 2),
             sentimentStatistics = SentimentStatistics(5, 4)
         )
@@ -370,6 +398,7 @@ fun SearchResultWindowPreview() {
             netUiState = GreenJuiceNetworkUiState.Success,
             amountOfItem = 9,
             searchItems = SampleDataSource.dataList,
+            favoritesItems = listOf(),
             juiceStatistics = JuiceStatistics(3, 4, 2),
             sentimentStatistics = SentimentStatistics(5, 4)
         )
@@ -384,6 +413,7 @@ fun SearchResultWindowWithEmptySearchItemPreview() {
             netUiState = GreenJuiceNetworkUiState.Success,
             amountOfItem = 0,
             searchItems = listOf(),
+            favoritesItems = listOf(),
             juiceStatistics = JuiceStatistics(0, 0, 0),
             sentimentStatistics = SentimentStatistics(0, 0)
         )

@@ -34,11 +34,13 @@ const val TAG = "GreenJuiceNavHost"
 @Composable
 fun GreenJuiceNavHost(
     navController: NavHostController,
+    accountId: String,
     theme: GreenJuiceTheme,
     changeThemeOption: (GreenJuiceTheme) -> Unit,
     isSignIn: Boolean,
     signIn: (String, String) -> Boolean,
     signUp: (String, String) -> Unit,
+    isDuplicatedId: (String) -> Boolean,
     modifier: Modifier = Modifier,
     viewModel: GreenJuiceNavHostViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -137,6 +139,7 @@ fun GreenJuiceNavHost(
                 onSignInClick = { id, pw ->
                     try {
                         if(signIn(id, pw)) {
+                            viewModel.loadFavorites(id)
                             Log.d("Account", "Sign in Success! Account ID : $id")
                             Toast.makeText(context, context.getString(R.string.sign_in_success, id), Toast.LENGTH_LONG).show()
                             navController.navigateUp()
@@ -156,6 +159,7 @@ fun GreenJuiceNavHost(
             route = GreenJuiceScreen.SIGN_UP.name
         ) {
             SignUpScreen(
+                onIsValidClick = { id -> !isDuplicatedId(id) },
                 onSignUpClick = { id, pw ->
                     try {
                         signUp(id, pw)
@@ -224,12 +228,14 @@ fun GreenJuiceNavHost(
             }
 
             SearchResultScreen(
+                accountId = accountId,
                 netUiState = netUiState,
                 query = viewModel.inputQuery,
                 amountOfItem = appUiState.value.numberOfItems,
                 juiceStatistics = appUiState.value.juiceStatistics,
                 sentimentStatistics = appUiState.value.sentimentStatistics,
                 searchItems = viewModel.resultList,
+                favoritesItems = viewModel.favoritesList,
                 showAddButton = appUiState.value.showAddDataButton,
                 onFilterClicked = { viewModel.filterDialogActivation() },
                 onChangeQuery = { viewModel.changeQuery(it) },
@@ -256,6 +262,12 @@ fun GreenJuiceNavHost(
                     } catch(e: Exception) {
                         Toast.makeText(context, "해당 블로그 포스트에 접속할 수 없습니다.", Toast.LENGTH_SHORT).show()
                     }
+                },
+                addFavorites = { accountId, postId ->
+                    viewModel.addFavorites(accountId, postId)
+                },
+                deleteFavorites = { accountId, postId ->
+                    viewModel.deleteFavorites(accountId, postId)
                 }
             )
         }
@@ -308,6 +320,7 @@ fun GreenJuiceNavHost(
             route = GreenJuiceScreen.FAVORITES.name
         ) { 
             FavoritesScreen(
+                //accountId = accountId,
                 favoritesList = SampleDataSource.dataList.filter {item -> item.favorites},
                 onItemClick = { url ->
                     try {

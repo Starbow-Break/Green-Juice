@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.starbow.greenjuice.Event
 import com.starbow.greenjuice.data.GreenJuiceRepository
-import com.starbow.greenjuice.data.SampleDataSource
 import com.starbow.greenjuice.enum.JuiceColor
 import com.starbow.greenjuice.enum.Sentiment
 import com.starbow.greenjuice.model.JuiceStatistics
@@ -24,7 +23,6 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 
 const val AMOUNT_DATA = 1 //요청할 때 마다 받아올 데이터 갯수
-const val NO_ACCOUNT = ""
 const val TAG = "NavHostViewModel"
 
 class GreenJuiceNavHostViewModel(
@@ -52,6 +50,10 @@ class GreenJuiceNavHostViewModel(
 
     //전체 데이터
     private val dataList = mutableStateListOf<JuiceItem>()
+
+    //즐겨찾기 데이터
+    var favoritesList = mutableStateListOf<Int>()
+        private set
 
     //필터가 적용된 데이터
     var resultList = listOf<JuiceItem>()
@@ -238,6 +240,42 @@ class GreenJuiceNavHostViewModel(
             currentUiState.copy(
                 showAddDataButton = false
             )
+        }
+    }
+
+    fun loadFavorites(accountId: String) {
+        favoritesList.clear()
+        viewModelScope.launch {
+            try {
+                favoritesList.addAll(greenJuiceRepository.getFavorites(accountId))
+            } catch(e: IOException) {
+                TODO("구현 예정")
+            }
+        }
+    }
+
+    //특정 계정의 즐겨찾기 추가
+    fun addFavorites(accountId: String, postId: Int) {
+        viewModelScope.launch {
+            viewModelScope.launch {
+                try {
+                    greenJuiceRepository.addFavorites(accountId, postId)
+                    loadFavorites(accountId)
+                } catch(e: IOException) {
+                    TODO("구현 예정")
+                }
+            }
+        }
+    }
+
+    fun deleteFavorites(accountId: String, postId: Int) {
+        viewModelScope.launch {
+            try {
+                greenJuiceRepository.deleteFavorites(accountId, postId)
+                loadFavorites(accountId)
+            } catch (e: IOException) {
+                TODO("구현 예정")
+            }
         }
     }
 }

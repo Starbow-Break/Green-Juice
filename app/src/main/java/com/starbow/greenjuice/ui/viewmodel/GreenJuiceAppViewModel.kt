@@ -9,6 +9,7 @@ import com.starbow.greenjuice.enum.GreenJuiceTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.starbow.greenjuice.NO_ACCOUNT
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -55,5 +56,13 @@ class GreenJuiceAppViewModel(
             greenJuiceRepository.signUp(id, password)
         }*/
         SampleDataSource.addAccount(id, password)
+    }
+
+    //중복 아이디 확인
+    fun isDuplicatedId(id: String): Boolean {
+        /*viewModelScope.launch {
+            greenJuiceRepository.signUp(id, password)
+        }*/
+        return SampleDataSource.isExistId(id)
     }
 }

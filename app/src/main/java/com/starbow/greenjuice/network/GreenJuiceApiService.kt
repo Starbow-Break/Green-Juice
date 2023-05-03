@@ -14,6 +14,15 @@ interface GreenJuiceApiService {
 
     @GET
     suspend fun authentication(@Body account: Account): Boolean
+
+    @PUT
+    suspend fun addFavorites(accountId: String, postId: Int)
+
+    @DELETE
+    suspend fun deleteFavorites(accountId: String, postId: Int)
+
+    @POST
+    suspend fun getFavorites(accountId: String): List<Int>
 }
 
 @Serializable

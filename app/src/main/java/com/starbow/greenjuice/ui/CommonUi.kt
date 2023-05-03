@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -164,8 +165,12 @@ fun RadioGroupPreview() {
 @Composable
 fun SearchResultItem(
     juiceItem: JuiceItem,
+    showFavorites: Boolean,
     onCardClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    addFavorites: (Int) -> Unit,
+    deleteFavorites: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    isFavorite: Boolean = false
 ) {
     Card(
         elevation = 4.dp,
@@ -192,18 +197,22 @@ fun SearchResultItem(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(text = juiceItem.title.deleteBoldTag(), style = Typography.h3)
-                        IconButton(
-                            onClick = {
 
+                        if(showFavorites) {
+                            IconButton(
+                                onClick = {
+                                    if(isFavorite) deleteFavorites(juiceItem.id)
+                                    else addFavorites(juiceItem.id)
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(
+                                        id = if(isFavorite) R.drawable.star else R.drawable.star_outline
+                                    ),
+                                    tint = YellowA400,
+                                    contentDescription = null
+                                )
                             }
-                        ) {
-                            Icon(
-                                painter = painterResource(
-                                    id = if(juiceItem.favorites) R.drawable.star else R.drawable.star_outline
-                                ),
-                                tint = YellowA400,
-                                contentDescription = null
-                            )
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
@@ -456,7 +465,9 @@ fun SearchResultItemPreview() {
     GreenJuiceTheme {
         SearchResultItem(
             onCardClick = {},
+            showFavorites = true,
             juiceItem = JuiceItem(
+                id = 1,
                 postUrl = "",
                 title = "Title",
                 description = "description",
@@ -464,8 +475,10 @@ fun SearchResultItemPreview() {
                 sentiment = Sentiment.POSITIVE,
                 favorites = false,
                 hasPowerLink = false,
-                hashtags = listOf("apple", "banana", "grape", "kiwi", "pineapple", "mint", "dragon fruit")
-            )
+                hashtags = listOf("apple", "banana", "grape", "kiwi", "pineapple", "mint", "dragon fruit"),
+            ),
+            addFavorites = {},
+            deleteFavorites = {}
         )
     }
 }

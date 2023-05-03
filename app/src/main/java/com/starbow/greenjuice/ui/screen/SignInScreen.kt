@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.starbow.greenjuice.R
 
@@ -60,6 +61,7 @@ fun SignInScreen(
                 },
                 label = { Text(stringResource(id = R.string.password)) },
                 maxLines = 1,
+                visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
