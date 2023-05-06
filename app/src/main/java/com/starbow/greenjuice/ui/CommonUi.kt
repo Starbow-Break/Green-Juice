@@ -473,7 +473,6 @@ fun SearchResultItemPreview() {
                 description = "description",
                 juiceColor = JuiceColor.RED,
                 sentiment = Sentiment.POSITIVE,
-                favorites = false,
                 hasPowerLink = false,
                 hashtags = listOf("apple", "banana", "grape", "kiwi", "pineapple", "mint", "dragon fruit"),
             ),

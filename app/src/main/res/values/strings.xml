@@ -21,8 +21,15 @@
 
     <string name="power_link_text">파워 링크</string>
 
-    <string name="network_main_error">검색 결과를 가져올 수 없습니다.</string>
-    <string name="network_sub_error">추가 데이터를 가져올 수 없습니다.</string>
+    <string name="network_error">네트워크 오류가 발생했습니다.</string>
+    <string name="load_data_error">포스트를 가져올 수 없습니다.</string>
+    <string name="sign_in_fail">아이디 또는 비밀번호를 확인해주세요.</string>
+    <string name="sign_in_error">로그인 중 오류가 발생했습니다.</string>
+    <string name="sign_out_error">로그아웃 중 오류가 발생했습니다.</string>
+    <string name="sign_up_error">회원가입 중 오류가 발생했습니다.</string>
+    <string name="add_favorites_error">즐겨찾기 추가에 실패했습니다.</string>
+    <string name="delete_favorites_error">즐겨찾기 제거에 실패했습니다.</string>
+
     <string name="empty_query_message">검색어를 입력해주세요.</string>
     <string name="empty_search_item_message">검색 결과가 없습니다.</string>
 
@@ -49,9 +56,11 @@
     <string name="sign_in">로그인</string>
     <string name="sign_in_success">%s님 환영합니다!</string>
     <string name="failed_find_account">존재하지 않는 계정정보입니다.</string>
-    <string name="sign_in_error">로그인 중 오류가 발생했습니다.</string>
     <string name="sign_out">로그아웃</string>
     <string name="sign_out_success">로그아웃 되었습니다.</string>
     <string name="sign_up">회원가입</string>
     <string name="favorites">즐겨찾기</string>
+
+    <string name="valid_id">사용 가능한 아이디입니다.</string>
+    <string name="duplicated_id">중복된 아이디입니다.</string>
 </resources>

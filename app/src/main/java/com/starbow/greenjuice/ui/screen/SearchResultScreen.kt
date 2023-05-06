@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 import app.futured.donut.compose.DonutProgress
 import app.futured.donut.compose.data.DonutModel
 import app.futured.donut.compose.data.DonutSection
-import com.starbow.greenjuice.NO_ACCOUNT
 import com.starbow.greenjuice.R
 import com.starbow.greenjuice.data.SampleDataSource
 import com.starbow.greenjuice.enum.JuiceColor
@@ -41,10 +40,9 @@ fun SearchResultScreen(
     juiceStatistics: JuiceStatistics,
     sentimentStatistics: SentimentStatistics,
     searchItems: List<JuiceItem>,
-    favoritesItems: List<Int>,
+    favoritesItems: List<JuiceItem>,
     modifier: Modifier = Modifier,
     query: String = "",
-    accountId: String = NO_ACCOUNT,
     showAddButton: Boolean = true,
     onFilterClicked: () -> Unit = {},
     onChangeQuery: (String) -> Unit = {},
@@ -52,8 +50,8 @@ fun SearchResultScreen(
     onClearQuery: () -> Unit = {},
     onAddDataClick: () -> Unit = {},
     onItemClick: (String) -> Unit = {},
-    addFavorites: (String, Int) -> Unit = {_, _ -> },
-    deleteFavorites: (String, Int) -> Unit = {_, _ -> },
+    addFavorites: (Int) -> Unit = {_ -> },
+    deleteFavorites: (Int) -> Unit = {_ -> },
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -89,7 +87,6 @@ fun SearchResultScreen(
                     NetworkErrorScreen()
                 else -> {
                     SearchResultView(
-                        accountId = accountId,
                         amountOfItem = amountOfItem,
                         juiceStatistics = juiceStatistics,
                         sentimentStatistics = sentimentStatistics,
@@ -176,7 +173,7 @@ fun NetworkErrorScreen(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center,
         modifier = modifier.fillMaxSize()
     ) {
-        Text(text = stringResource(id = R.string.network_main_error))
+        Text(text = stringResource(id = R.string.load_data_error))
     }
 }
 
@@ -263,15 +260,15 @@ fun SearchResultView(
     juiceStatistics: JuiceStatistics,
     sentimentStatistics: SentimentStatistics,
     searchItems: List<JuiceItem>,
-    favoritesItems: List<Int>,
+    favoritesItems: List<JuiceItem>,
     showAddButton: Boolean,
     addDataLoading: Boolean,
     onAddDataClick: () -> Unit,
     onCardClick: (String) -> Unit,
-    addFavorites: (String, Int) -> Unit,
-    deleteFavorites: (String, Int) -> Unit,
+    addFavorites: (Int) -> Unit,
+    deleteFavorites: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    accountId: String = NO_ACCOUNT
+    isSignIn: Boolean = false
 ) {
     Card(
         elevation = 4.dp,
@@ -304,19 +301,17 @@ fun SearchResultView(
                 items(searchItems) { data ->
                     SearchResultItem(
                         juiceItem = data,
-                        showFavorites = accountId != NO_ACCOUNT,
+                        showFavorites = isSignIn,
                         onCardClick = onCardClick,
                         addFavorites = { postId ->
-                            Log.d("Favorites", "id = ${postId}인 게시글이 ${accountId}의 츨겨찾기에 추가")
-                            addFavorites(accountId, postId)
-                            Log.d("Favorites", "${accountId}의 츨겨찾기 목록 = ${SampleDataSource.favoritesMap[accountId] ?: mutableListOf()}")
+                            Log.d("Favorites", "id = ${postId}인 게시글 츨겨찾기에 추가")
+                            addFavorites(postId)
                         },
-                        deleteFavorites = {postId ->
-                            Log.d("Favorites", "id = ${postId}인 게시글이 ${accountId}의 츨겨찾기에서 제거")
-                            deleteFavorites(accountId, postId)
-                            Log.d("Favorites", "${accountId}의 츨겨찾기 목록 = ${SampleDataSource.favoritesMap[accountId] ?: mutableListOf()}")
+                        deleteFavorites = { postId ->
+                            Log.d("Favorites", "id = ${postId}인 게시글 츨겨찾기에 제거")
+                            deleteFavorites(postId)
                         },
-                        isFavorite = favoritesItems.contains(data.id) ?: false,
+                        isFavorite = favoritesItems.map{it.id}.contains(data.id),
                         modifier = Modifier.padding(4.dp)
                     )
                 }

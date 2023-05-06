@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.starbow.greenjuice.Event
 import com.starbow.greenjuice.data.GreenJuiceRepository
+import com.starbow.greenjuice.enum.EventToastMessage
 import com.starbow.greenjuice.enum.JuiceColor
 import com.starbow.greenjuice.enum.Sentiment
 import com.starbow.greenjuice.model.JuiceStatistics
@@ -22,7 +23,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
 
-const val AMOUNT_DATA = 1 //요청할 때 마다 받아올 데이터 갯수
+const val AMOUNT_DATA = 5 //요청할 때 마다 받아올 데이터 갯수
 const val TAG = "NavHostViewModel"
 
 class GreenJuiceNavHostViewModel(
@@ -32,8 +33,8 @@ class GreenJuiceNavHostViewModel(
     private val _uiState = MutableStateFlow(GreenJuiceUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val _showErrorToast = MutableLiveData<Event<Boolean>>()
-    val showErrorToast: LiveData<Event<Boolean>> = _showErrorToast
+    private val _showToast = MutableLiveData<Event<EventToastMessage>>()
+    val showToast: LiveData<Event<EventToastMessage>> = _showToast
 
     //네트워크 관련 UI 상태
     var netUiState: GreenJuiceNetworkUiState by mutableStateOf(GreenJuiceNetworkUiState.Success)
@@ -52,7 +53,7 @@ class GreenJuiceNavHostViewModel(
     private val dataList = mutableStateListOf<JuiceItem>()
 
     //즐겨찾기 데이터
-    var favoritesList = mutableStateListOf<Int>()
+    var favoritesList = mutableStateListOf<JuiceItem>()
         private set
 
     //필터가 적용된 데이터
@@ -186,7 +187,7 @@ class GreenJuiceNavHostViewModel(
 
                 inputQuery = curQuery
             } catch (e: IOException) {
-                _showErrorToast.value = Event(true) //에러 발생 시 에러 토스트를 띄우기 위해 이벤트를 보냄
+                _showToast.value = Event(EventToastMessage.LOAD_DATA_ERROR) //에러 발생 시 에러 토스트를 띄우기 위해 이벤트를 보냄
             }
             finally {
                 netUiState = GreenJuiceNetworkUiState.Success
@@ -243,38 +244,38 @@ class GreenJuiceNavHostViewModel(
         }
     }
 
-    fun loadFavorites(accountId: String) {
+    fun loadFavorites() {
         favoritesList.clear()
         viewModelScope.launch {
             try {
-                favoritesList.addAll(greenJuiceRepository.getFavorites(accountId))
+                favoritesList.addAll(greenJuiceRepository.getFavorites())
             } catch(e: IOException) {
-                TODO("구현 예정")
+                _showToast.value = Event(EventToastMessage.LOAD_DATA_ERROR)
             }
         }
     }
 
     //특정 계정의 즐겨찾기 추가
-    fun addFavorites(accountId: String, postId: Int) {
+    fun addFavorites(postId: Int) {
         viewModelScope.launch {
             viewModelScope.launch {
                 try {
-                    greenJuiceRepository.addFavorites(accountId, postId)
-                    loadFavorites(accountId)
+                    greenJuiceRepository.addFavorites(postId)
+                    loadFavorites()
                 } catch(e: IOException) {
-                    TODO("구현 예정")
+                    _showToast.value = Event(EventToastMessage.ADD_FAV_ERROR)
                 }
             }
         }
     }
 
-    fun deleteFavorites(accountId: String, postId: Int) {
+    fun deleteFavorites(postId: Int) {
         viewModelScope.launch {
             try {
-                greenJuiceRepository.deleteFavorites(accountId, postId)
-                loadFavorites(accountId)
+                greenJuiceRepository.deleteFavorites(postId)
+                loadFavorites()
             } catch (e: IOException) {
-                TODO("구현 예정")
+                _showToast.value = Event(EventToastMessage.DELETE_FAV_ERROR)
             }
         }
     }

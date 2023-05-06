@@ -1,34 +1,55 @@
 package com.starbow.greenjuice.ui.screen
 
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Observer
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.starbow.greenjuice.R
+import com.starbow.greenjuice.enum.EventToastMessage
+import com.starbow.greenjuice.ui.AppViewModelProvider
 import com.starbow.greenjuice.ui.theme.GreenJuiceTheme
+import com.starbow.greenjuice.ui.viewmodel.GreenJuiceNavHostViewModel
+import com.starbow.greenjuice.ui.viewmodel.SignUpViewModel
 
 @Composable
 fun SignUpScreen(
-    onIsValidClick: (String) -> Boolean,
-    onSignUpClick: (String, String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: SignUpViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    doSuccessSignUp: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val isValidState = viewModel.isValid.collectAsState()
+    val isValidLoadingState = viewModel.isValidLoading.collectAsState()
+
+    var id by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var passwordCheck by rememberSaveable { mutableStateOf("") }
+
+    viewModel.showToast.observe(lifecycleOwner, Observer {
+        it.getContentIfNotHandled()?.let { toastMessage ->
+            if(toastMessage == EventToastMessage.SIGN_UP) doSuccessSignUp()
+            Toast.makeText(context, toastMessage.messageRes, Toast.LENGTH_SHORT).show()
+        }
+    })
 
     Box(
         modifier = modifier
@@ -44,13 +65,8 @@ fun SignUpScreen(
                 .padding(horizontal = 24.dp)
                 .align(Alignment.Center)
         ) {
-            var id by rememberSaveable { mutableStateOf("") }
-            var password by rememberSaveable { mutableStateOf("") }
-            var passwordCheck by rememberSaveable { mutableStateOf("") }
-            var isValid by rememberSaveable { mutableStateOf(false) }
-
             IDTextField(
-                textFieldEnabled = !isValid,
+                textFieldEnabled = !isValidState.value,
                 value = id,
                 description = "6~18자리/영문 대소문자, 숫자, 특수문자'_' 조합",
                 onValueChange = {
@@ -58,16 +74,13 @@ fun SignUpScreen(
                     if(regex.matches(it)) id = it
                 },
                 label = { Text(stringResource(id = R.string.id)) },
-                buttonEnabled = validId(id) and !isValid,
-                buttonLabel = { Text(text = "확인") },
+                buttonEnabled = validId(id) and !isValidState.value and !isValidLoadingState.value,
+                buttonLabel = {
+                    if(isValidLoadingState.value) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    else Text(text = "확인")
+                },
                 onButtonClick = {
-                    if(onIsValidClick(id)) {
-                        isValid = true
-                        Toast.makeText(context, "사용 가능한 아이디입니다.", Toast.LENGTH_LONG).show()
-                    }
-                    else {
-                        Toast.makeText(context, "중복된 아이디입니다.", Toast.LENGTH_LONG).show()
-                    }
+                    viewModel.isIdExist(id)
                 },
                 maxLines = 1,
                 isError = id.isNotEmpty() and !validId(id),
@@ -103,9 +116,9 @@ fun SignUpScreen(
             )
             Button(
                 onClick = {
-                    onSignUpClick(id, password)
+                    viewModel.signUp(id, password)
                 },
-                enabled = isValid and validPassword(password) and (password == passwordCheck),
+                enabled = isValidState.value and validPassword(password) and (password == passwordCheck),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp)
@@ -235,10 +248,7 @@ fun IDTextFieldPreview() {
 @Composable
 fun SignUpScreenPreview() {
     GreenJuiceTheme {
-        SignUpScreen(
-            onSignUpClick = {_, _ -> },
-            onIsValidClick = {false}
-        )
+        SignUpScreen()
     }
 }
 

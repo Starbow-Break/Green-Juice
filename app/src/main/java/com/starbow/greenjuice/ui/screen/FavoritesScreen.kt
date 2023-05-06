@@ -16,16 +16,22 @@ import com.starbow.greenjuice.ui.theme.GreenJuiceTheme
 fun FavoritesScreen(
     favoritesList: List<JuiceItem>,
     onItemClick: (String) -> Unit,
+    addFavorites: (Int) -> Unit,
+    deleteFavorites: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        contentPadding = PaddingValues(4.dp)
+        contentPadding = PaddingValues(4.dp),
+        modifier = modifier
     ) {
         /* 현재 서버가 구현되지 않아 UI를 테스트 하는 코드로 작성됨 */
         items(favoritesList) { favorites ->
             SearchResultItem(
                 juiceItem = favorites,
                 onCardClick = onItemClick,
+                showFavorites = true,
+                addFavorites = addFavorites,
+                deleteFavorites = deleteFavorites,
                 modifier = Modifier.padding(4.dp)
             )
         }
@@ -38,7 +44,9 @@ fun FavoritesScreenPreview() {
     GreenJuiceTheme {
         FavoritesScreen(
             favoritesList = SampleDataSource.dataList,
-            onItemClick = {_ ->}
+            onItemClick = {_ ->},
+            addFavorites = {_ ->},
+            deleteFavorites = {_ ->}
         )
     }
 }

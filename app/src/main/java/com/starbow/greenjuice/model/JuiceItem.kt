@@ -10,7 +10,6 @@ data class JuiceItem(
     val description: String,
     val juiceColor: JuiceColor?,
     val sentiment: Sentiment?,
-    var favorites: Boolean,
     val hasPowerLink: Boolean,
     val hashtags: List<String>
 )

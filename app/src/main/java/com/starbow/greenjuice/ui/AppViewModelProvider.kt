@@ -7,6 +7,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.starbow.greenjuice.GreenJuiceApplication
 import com.starbow.greenjuice.ui.viewmodel.GreenJuiceAppViewModel
 import com.starbow.greenjuice.ui.viewmodel.GreenJuiceNavHostViewModel
+import com.starbow.greenjuice.ui.viewmodel.SignInViewModel
+import com.starbow.greenjuice.ui.viewmodel.SignUpViewModel
 
 object AppViewModelProvider {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -19,6 +21,14 @@ object AppViewModelProvider {
                 greenJuiceApplication().container.greenJuiceRepository,
                 greenJuiceApplication().container.greenJuicePreferencesRepository
             )
+        }
+
+        initializer {
+            SignUpViewModel(greenJuiceApplication().container.greenJuiceRepository)
+        }
+
+        initializer {
+            SignInViewModel(greenJuiceApplication().container.greenJuiceRepository)
         }
     }
 }

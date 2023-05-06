@@ -1,5 +1,6 @@
 package com.starbow.greenjuice.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -9,20 +10,47 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.starbow.greenjuice.ui.theme.GreenJuiceTheme
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Observer
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.starbow.greenjuice.R
+import com.starbow.greenjuice.enum.EventToastMessage
+import com.starbow.greenjuice.ui.AppViewModelProvider
+import com.starbow.greenjuice.ui.viewmodel.SignInViewModel
 
 @Composable
 fun SignInScreen(
-    onSignInClick: (String, String) -> Unit,
     onClickSignUp: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: SignInViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    doSuccessSignIn: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val isLoading = viewModel.isLoading.collectAsState()
+
+    var id by rememberSaveable { mutableStateOf("") } //텍스트 필드에 입력된 아이디
+    var password by rememberSaveable { mutableStateOf("") } //텍스트 필드에 입력된 비밀번호
+
+    viewModel.showToast.observe(lifecycleOwner, Observer {
+        it.getContentIfNotHandled()?.let { toastMessage ->
+            if(toastMessage == EventToastMessage.SIGN_IN) {
+                doSuccessSignIn()
+                Toast.makeText(context, context.getString(R.string.sign_in_success, id), Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, toastMessage.messageRes, Toast.LENGTH_SHORT).show()
+            }
+        }
+    })
 
     Box(
         modifier = modifier
@@ -38,15 +66,13 @@ fun SignInScreen(
                 .padding(horizontal = 32.dp)
                 .align(Alignment.Center)
         ) {
-            var id by rememberSaveable { mutableStateOf("") } //텍스트 필드에 입력된 아이디
-            var password by rememberSaveable { mutableStateOf("") } //텍스트 필드에 입력된 비밀번호
-
             TextField(
                 value = id,
                 onValueChange = {
                     val regex = "\\w*".toRegex()
                     if(regex.matches(it)) id = it
                 },
+                enabled = !isLoading.value,
                 label = { Text(stringResource(id = R.string.id)) },
                 maxLines = 1,
                 modifier = Modifier
@@ -59,6 +85,7 @@ fun SignInScreen(
                     val regex = "[A-Za-z\\d]*".toRegex()
                     if(regex.matches(it)) password = it
                 },
+                enabled = !isLoading.value,
                 label = { Text(stringResource(id = R.string.password)) },
                 maxLines = 1,
                 visualTransformation = PasswordVisualTransformation(),
@@ -67,19 +94,23 @@ fun SignInScreen(
                     .padding(vertical = 8.dp)
             )
             Button(
-                onClick = { onSignInClick(id, password) },
+                onClick = { viewModel.signIn(id, password) },
+                enabled = !isLoading.value,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp)
             ) {
-                Text(stringResource(id = R.string.sign_in))
+                if(isLoading.value) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                else Text(stringResource(id = R.string.sign_in))
             }
         }
 
         Row (
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 48.dp)
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 48.dp)
         ) {
             Text(
                 text = "계정이 없으신가요?",
@@ -104,7 +135,6 @@ fun SignInScreen(
 fun SignInScreenPreview() {
     GreenJuiceTheme {
         SignInScreen(
-            onSignInClick = {_, _ -> },
             onClickSignUp = {}
         )
     }

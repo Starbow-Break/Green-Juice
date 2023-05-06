@@ -12,10 +12,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -33,6 +35,7 @@ fun GreenJuiceApp(
     viewModel: GreenJuiceAppViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -40,9 +43,16 @@ fun GreenJuiceApp(
     val currentScreenName: String = backStackEntry?.destination?.route ?: GreenJuiceScreen.MAIN.name
 
     val themeState = viewModel.themeState.collectAsState()
+    val signInState = viewModel.signInState.collectAsState()
     val currentTheme = themeState.value
 
     var showMenu by remember { mutableStateOf(false) }
+
+    viewModel.showToast.observe(lifecycleOwner, Observer {
+        it.getContentIfNotHandled()?.let { errorToast ->
+            Toast.makeText(context, errorToast.messageRes, Toast.LENGTH_SHORT).show()
+        }
+    })
 
     GreenJuiceTheme(
         darkTheme = when(currentTheme) {
@@ -70,10 +80,10 @@ fun GreenJuiceApp(
                         GreenJuiceIconTopBar(
                             showIcon = currentScreen != GreenJuiceScreen.WEB_VIEW,
                             showTheme = currentScreen != GreenJuiceScreen.WEB_VIEW,
-                            showSignIn = !(((currentScreen == GreenJuiceScreen.MAIN) and !viewModel.isSignIn())
+                            showSignIn = !(((currentScreen == GreenJuiceScreen.MAIN) and !signInState.value)
                                     or (currentScreen == GreenJuiceScreen.WEB_VIEW)),
                             showMenu = showMenu,
-                            isSignIn = viewModel.isSignIn(),
+                            isSignIn = signInState.value,
                             canNavigateBack = navController.previousBackStackEntry != null,
                             navigateUp = { navController.navigateUp() },
                             navigateTheme = { navController.navigate(GreenJuiceScreen.THEME.name) },
@@ -85,9 +95,6 @@ fun GreenJuiceApp(
                             },
                             onClickSignOut = {
                                 viewModel.signOut()
-                                Toast.makeText(
-                                    context, R.string.sign_out_success, Toast.LENGTH_LONG
-                                ).show()
                                 showMenu = false
                             },
                             navigateSignIn = { navController.navigate(GreenJuiceScreen.SIGN_IN.name) }
@@ -104,13 +111,10 @@ fun GreenJuiceApp(
             ) {
                 GreenJuiceNavHost(
                     navController = navController,
-                    accountId = viewModel.curAccount,
                     theme = currentTheme,
                     changeThemeOption = { theme -> viewModel.updateThemeOption(theme) },
-                    isSignIn = viewModel.isSignIn(),
-                    signIn = { id, pw -> viewModel.signIn(id, pw) },
-                    signUp = { id, pw -> viewModel.signUp(id, pw) },
-                    isDuplicatedId = { id -> viewModel.isDuplicatedId(id) }
+                    changeSignInState = { viewModel.changeSignInState(it) },
+                    isSignIn = signInState.value,
                 )
             }
         }

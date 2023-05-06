@@ -28,19 +28,20 @@ import com.starbow.greenjuice.enum.Sentiment
 import com.starbow.greenjuice.ui.AppViewModelProvider
 import com.starbow.greenjuice.ui.screen.*
 import com.starbow.greenjuice.ui.viewmodel.GreenJuiceNavHostViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val TAG = "GreenJuiceNavHost"
 
 @Composable
 fun GreenJuiceNavHost(
     navController: NavHostController,
-    accountId: String,
     theme: GreenJuiceTheme,
     changeThemeOption: (GreenJuiceTheme) -> Unit,
     isSignIn: Boolean,
-    signIn: (String, String) -> Boolean,
-    signUp: (String, String) -> Unit,
-    isDuplicatedId: (String) -> Boolean,
+    changeSignInState: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: GreenJuiceNavHostViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -100,9 +101,9 @@ fun GreenJuiceNavHost(
     if(selectedSentimentIndex == -1) selectedSentimentIndex = sentimentIndex
     Log.d(TAG, "** $theme ** $selectedThemeIndex, $themeIndex")
 
-    viewModel.showErrorToast.observe(lifecycleOwner, Observer {
-        it.getContentIfNotHandled()?.let {
-            Toast.makeText(context, R.string.network_sub_error, Toast.LENGTH_SHORT).show()
+    viewModel.showToast.observe(lifecycleOwner, Observer {
+        it.getContentIfNotHandled()?.let { toastMessage ->
+            Toast.makeText(context, toastMessage.messageRes, Toast.LENGTH_SHORT).show()
         }
     })
 
@@ -136,22 +137,12 @@ fun GreenJuiceNavHost(
             route = GreenJuiceScreen.SIGN_IN.name
         ) {
             SignInScreen(
-                onSignInClick = { id, pw ->
-                    try {
-                        if(signIn(id, pw)) {
-                            viewModel.loadFavorites(id)
-                            Log.d("Account", "Sign in Success! Account ID : $id")
-                            Toast.makeText(context, context.getString(R.string.sign_in_success, id), Toast.LENGTH_LONG).show()
-                            navController.navigateUp()
-                        }
-                        else {
-                            Toast.makeText(context, R.string.failed_find_account, Toast.LENGTH_SHORT).show()
-                        }
-                    } catch (e: Exception) {
-                        Toast.makeText(context, R.string.sign_in_error, Toast.LENGTH_SHORT).show()
-                    }
-                },
-                onClickSignUp = { navController.navigate(GreenJuiceScreen.SIGN_UP.name) }
+                onClickSignUp = { navController.navigate(GreenJuiceScreen.SIGN_UP.name) },
+                doSuccessSignIn = {
+                    changeSignInState(true)
+                    viewModel.loadFavorites()
+                    navController.navigateUp()
+                }
             )
         }
 
@@ -159,17 +150,7 @@ fun GreenJuiceNavHost(
             route = GreenJuiceScreen.SIGN_UP.name
         ) {
             SignUpScreen(
-                onIsValidClick = { id -> !isDuplicatedId(id) },
-                onSignUpClick = { id, pw ->
-                    try {
-                        signUp(id, pw)
-                        Toast.makeText(context, "회원가입이 완료되었습니다.", Toast.LENGTH_LONG).show()
-                        navController.navigateUp()
-                    }
-                    catch (e: Exception) {
-                        Toast.makeText(context, "회원가입 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
-                    }
-                }
+                doSuccessSignUp = { navController.navigateUp() }
             )
         }
 
@@ -228,7 +209,6 @@ fun GreenJuiceNavHost(
             }
 
             SearchResultScreen(
-                accountId = accountId,
                 netUiState = netUiState,
                 query = viewModel.inputQuery,
                 amountOfItem = appUiState.value.numberOfItems,
@@ -263,11 +243,11 @@ fun GreenJuiceNavHost(
                         Toast.makeText(context, "해당 블로그 포스트에 접속할 수 없습니다.", Toast.LENGTH_SHORT).show()
                     }
                 },
-                addFavorites = { accountId, postId ->
-                    viewModel.addFavorites(accountId, postId)
+                addFavorites = { postId ->
+                    viewModel.addFavorites(postId)
                 },
-                deleteFavorites = { accountId, postId ->
-                    viewModel.deleteFavorites(accountId, postId)
+                deleteFavorites = { postId ->
+                    viewModel.deleteFavorites(postId)
                 }
             )
         }
@@ -321,7 +301,7 @@ fun GreenJuiceNavHost(
         ) { 
             FavoritesScreen(
                 //accountId = accountId,
-                favoritesList = SampleDataSource.dataList.filter {item -> item.favorites},
+                favoritesList = viewModel.favoritesList,
                 onItemClick = { url ->
                     try {
                         Log.d(TAG, "url : $url")
@@ -336,7 +316,9 @@ fun GreenJuiceNavHost(
                     } catch(e: Exception) {
                         Toast.makeText(context, "해당 블로그 포스트에 접속할 수 없습니다.", Toast.LENGTH_SHORT).show()
                     }
-                }
+                },
+                addFavorites = { postId -> viewModel.addFavorites(postId) },
+                deleteFavorites = { postId -> viewModel.deleteFavorites(postId) }
             )
         }
     }
