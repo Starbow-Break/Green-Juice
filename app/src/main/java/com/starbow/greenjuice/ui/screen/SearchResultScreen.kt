@@ -29,7 +29,10 @@ import com.starbow.greenjuice.enum.Sentiment
 import com.starbow.greenjuice.model.JuiceStatistics
 import com.starbow.greenjuice.model.JuiceItem
 import com.starbow.greenjuice.model.SentimentStatistics
+import com.starbow.greenjuice.ui.FilterButtonView
 import com.starbow.greenjuice.ui.GreenJuiceNetworkUiState
+import com.starbow.greenjuice.ui.SearchBar
+import com.starbow.greenjuice.ui.SearchResultItem
 import com.starbow.greenjuice.ui.theme.*
 
 //검색 결과를 띄우는 화면

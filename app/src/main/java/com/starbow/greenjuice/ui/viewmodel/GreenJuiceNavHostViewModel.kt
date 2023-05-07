@@ -139,6 +139,12 @@ class GreenJuiceNavHostViewModel(
 
     //주어진 쿼리로 검색, 검색 후 분석된 결과를 토대로 통계 데이터 획득
     fun search() {
+        if((netUiState == GreenJuiceNetworkUiState.Loading) or
+            (netUiState == GreenJuiceNetworkUiState.LoadingAdditional)) {
+            requestRefuse()
+            return
+        }
+
         netUiState = GreenJuiceNetworkUiState.Loading
 
         //동작중인 검색 코루틴이 있는 경우 해당 코루틴을 취소
@@ -166,6 +172,12 @@ class GreenJuiceNavHostViewModel(
 
     //추가 데이터 가져오기
     fun getAdditionalData() {
+        if((netUiState == GreenJuiceNetworkUiState.Loading) or
+            (netUiState == GreenJuiceNetworkUiState.LoadingAdditional)) {
+            requestRefuse()
+            return
+        }
+
         //동작중인 검색 코루틴이 있는 경우 해당 코루틴을 취소
         if(curJob != null) {
             curJob!!.cancel()
@@ -278,5 +290,10 @@ class GreenJuiceNavHostViewModel(
                 _showToast.value = Event(EventToastMessage.DELETE_FAV_ERROR)
             }
         }
+    }
+
+    //들어온 요청을 거부
+    fun requestRefuse() {
+        _showToast.value = Event(EventToastMessage.REFUSE)
     }
 }

@@ -25,6 +25,11 @@ class SignInViewModel(
 
     //로그인
     fun signIn(id: String, password: String) {
+        if(isLoading.value) {
+            _showToast.value = Event(EventToastMessage.REFUSE)
+            return
+        }
+
         isLoading.value = true
 
         viewModelScope.launch {
@@ -45,5 +50,9 @@ class SignInViewModel(
                 isLoading.value = false
             }
         }
+    }
+
+    fun requestRefuse() {
+        _showToast.value = Event(EventToastMessage.REFUSE)
     }
 }

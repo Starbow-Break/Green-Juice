@@ -23,6 +23,10 @@ class GreenJuiceAppViewModel(
     var signInState = MutableStateFlow(false)
         private set
 
+    private var navBackBlockedId: Int? = null
+    var navigateBackEnabled = MutableStateFlow(true)
+        private set
+
     private val _showToast = MutableLiveData<Event<EventToastMessage>>()
     val showToast: LiveData<Event<EventToastMessage>> = _showToast
 
@@ -56,5 +60,23 @@ class GreenJuiceAppViewModel(
                 _showToast.value = Event(EventToastMessage.SIGN_OUT_ERROR)
             }
         }
+    }
+
+    fun navBackBlocked(id: Int) {
+        if(navigateBackEnabled.value) {
+            navigateBackEnabled.value = false
+            navBackBlockedId = id
+        }
+    }
+
+    fun navBackWakeup(id: Int) {
+        if(!navigateBackEnabled.value && navBackBlockedId == id) {
+            navigateBackEnabled.value = true
+            navBackBlockedId = null
+        }
+    }
+
+    fun requestRefuse() {
+        _showToast.value = Event(EventToastMessage.REFUSE)
     }
 }

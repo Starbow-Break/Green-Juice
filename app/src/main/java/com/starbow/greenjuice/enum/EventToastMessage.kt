@@ -14,5 +14,6 @@ enum class EventToastMessage(@StringRes val messageRes: Int) {
     SIGN_OUT_ERROR(messageRes = R.string.sign_out_error),
     SIGN_UP_ERROR(messageRes = R.string.sign_up_error),
     ADD_FAV_ERROR(messageRes = R.string.add_favorites_error),
-    DELETE_FAV_ERROR(messageRes = R.string.delete_favorites_error)
+    DELETE_FAV_ERROR(messageRes = R.string.delete_favorites_error),
+    REFUSE(messageRes = R.string.refuse)
 }

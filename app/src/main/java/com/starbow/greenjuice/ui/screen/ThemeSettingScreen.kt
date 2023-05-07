@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.starbow.greenjuice.R
+import com.starbow.greenjuice.ui.RadioGroup
 
 //설정 화면 (테마 설정)
 @Composable

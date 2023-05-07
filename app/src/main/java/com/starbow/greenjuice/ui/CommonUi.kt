@@ -1,4 +1,4 @@
-package com.starbow.greenjuice.ui.screen
+package com.starbow.greenjuice.ui
 
 import android.content.res.Configuration
 import android.util.Log
@@ -35,6 +35,7 @@ import com.starbow.greenjuice.R
 import com.starbow.greenjuice.enum.JuiceColor
 import com.starbow.greenjuice.enum.Sentiment
 import com.starbow.greenjuice.model.JuiceItem
+import com.starbow.greenjuice.ui.screen.deleteBoldTag
 import com.starbow.greenjuice.ui.theme.*
 
 //앱 타이틀

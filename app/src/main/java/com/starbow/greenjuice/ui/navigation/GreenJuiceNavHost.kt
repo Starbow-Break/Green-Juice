@@ -2,6 +2,7 @@ package com.starbow.greenjuice.ui.navigation
 
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -20,18 +21,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.starbow.greenjuice.R
-import com.starbow.greenjuice.data.SampleDataSource
 import com.starbow.greenjuice.enum.GreenJuiceScreen
 import com.starbow.greenjuice.enum.GreenJuiceTheme
 import com.starbow.greenjuice.enum.JuiceColor
 import com.starbow.greenjuice.enum.Sentiment
 import com.starbow.greenjuice.ui.AppViewModelProvider
+import com.starbow.greenjuice.ui.GreenJuiceNetworkUiState
 import com.starbow.greenjuice.ui.screen.*
 import com.starbow.greenjuice.ui.viewmodel.GreenJuiceNavHostViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 const val TAG = "GreenJuiceNavHost"
 
@@ -42,6 +39,8 @@ fun GreenJuiceNavHost(
     changeThemeOption: (GreenJuiceTheme) -> Unit,
     isSignIn: Boolean,
     changeSignInState: (Boolean) -> Unit,
+    navBackBlocked: (Int) -> Unit,
+    navBackWakeup: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: GreenJuiceNavHostViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -107,6 +106,15 @@ fun GreenJuiceNavHost(
         }
     })
 
+    val loading = (viewModel.netUiState == GreenJuiceNetworkUiState.Loading) or
+            (viewModel.netUiState == GreenJuiceNetworkUiState.LoadingAdditional)
+
+    BackHandler(enabled = loading) {
+        viewModel.requestRefuse()
+    }
+
+    if(loading) navBackBlocked(1) else navBackWakeup(1)
+
     NavHost(
         navController = navController,
         startDestination = GreenJuiceScreen.MAIN.name,
@@ -137,12 +145,17 @@ fun GreenJuiceNavHost(
             route = GreenJuiceScreen.SIGN_IN.name
         ) {
             SignInScreen(
-                onClickSignUp = { navController.navigate(GreenJuiceScreen.SIGN_UP.name) },
+                onClickSignUp = {
+                    if(loading) viewModel.requestRefuse()
+                    else navController.navigate(GreenJuiceScreen.SIGN_UP.name)
+                },
                 doSuccessSignIn = {
                     changeSignInState(true)
                     viewModel.loadFavorites()
                     navController.navigateUp()
-                }
+                },
+                navBackBlocked = navBackBlocked,
+                navBackWakeup = navBackWakeup
             )
         }
 
@@ -150,7 +163,9 @@ fun GreenJuiceNavHost(
             route = GreenJuiceScreen.SIGN_UP.name
         ) {
             SignUpScreen(
-                doSuccessSignUp = { navController.navigateUp() }
+                doSuccessSignUp = { navController.navigateUp() },
+                navBackBlocked = navBackBlocked,
+                navBackWakeup = navBackWakeup
             )
         }
 

@@ -10,6 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.starbow.greenjuice.data.SampleDataSource
 import com.starbow.greenjuice.model.JuiceItem
+import com.starbow.greenjuice.ui.SearchResultItem
 import com.starbow.greenjuice.ui.theme.GreenJuiceTheme
 
 @Composable

@@ -12,6 +12,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.starbow.greenjuice.R
+import com.starbow.greenjuice.ui.AppTitle
+import com.starbow.greenjuice.ui.SearchBar
 import com.starbow.greenjuice.ui.theme.GreenJuiceTheme
 
 //메인 화면 (처음 앱을 실행하고 아직 검색 기능을 사용하지 않은 상태에서 띄우는 화면)

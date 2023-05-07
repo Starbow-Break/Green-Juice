@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.starbow.greenjuice.R
+import com.starbow.greenjuice.ui.RadioGroup
 import com.starbow.greenjuice.ui.theme.Typography
 
 //필터 버튼을 클릭하면 나오는 AlertDialog

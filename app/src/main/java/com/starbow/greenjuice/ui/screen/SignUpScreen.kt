@@ -1,7 +1,7 @@
 package com.starbow.greenjuice.ui.screen
 
-import android.widget.Spinner
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -24,14 +24,15 @@ import com.starbow.greenjuice.R
 import com.starbow.greenjuice.enum.EventToastMessage
 import com.starbow.greenjuice.ui.AppViewModelProvider
 import com.starbow.greenjuice.ui.theme.GreenJuiceTheme
-import com.starbow.greenjuice.ui.viewmodel.GreenJuiceNavHostViewModel
 import com.starbow.greenjuice.ui.viewmodel.SignUpViewModel
 
 @Composable
 fun SignUpScreen(
     modifier: Modifier = Modifier,
     viewModel: SignUpViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    doSuccessSignUp: () -> Unit = {}
+    doSuccessSignUp: () -> Unit = {},
+    navBackBlocked: (Int) -> Unit = {_ -> },
+    navBackWakeup: (Int) -> Unit = {_ -> }
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -50,6 +51,14 @@ fun SignUpScreen(
             Toast.makeText(context, toastMessage.messageRes, Toast.LENGTH_SHORT).show()
         }
     })
+
+    if(isValidState.value or isValidLoadingState.value) navBackBlocked(3) else navBackWakeup(3)
+
+    BackHandler(
+        enabled = isValidState.value or isValidLoadingState.value
+    ) {
+        viewModel.requestRefuse()
+    }
 
     Box(
         modifier = modifier

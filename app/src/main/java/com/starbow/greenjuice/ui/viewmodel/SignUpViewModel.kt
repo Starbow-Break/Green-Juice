@@ -25,6 +25,11 @@ class SignUpViewModel(
     val showToast: LiveData<Event<EventToastMessage>> = _showToast
 
     fun isIdExist(id: String) {
+        if(isValidLoading.value) {
+            _showToast.value = Event(EventToastMessage.REFUSE)
+            return
+        }
+
         isValidLoading.value = true
 
         viewModelScope.launch {
@@ -41,6 +46,11 @@ class SignUpViewModel(
 
     //회원 가입
     fun signUp(id: String, password: String) {
+        if(signUpLoading.value) {
+            _showToast.value = Event(EventToastMessage.REFUSE)
+            return
+        }
+
         signUpLoading.value = true
 
         viewModelScope.launch {
@@ -53,5 +63,9 @@ class SignUpViewModel(
                 signUpLoading.value = false
             }
         }
+    }
+
+    fun requestRefuse() {
+        _showToast.value = Event(EventToastMessage.REFUSE)
     }
 }

@@ -1,6 +1,7 @@
 package com.starbow.greenjuice.ui.screen
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -30,13 +31,15 @@ fun SignInScreen(
     onClickSignUp: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SignInViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    doSuccessSignIn: () -> Unit = {}
+    doSuccessSignIn: () -> Unit = {},
+    navBackBlocked: (Int) -> Unit = {_ -> },
+    navBackWakeup: (Int) -> Unit = {_ -> }
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    val isLoading = viewModel.isLoading.collectAsState()
+    val isLoadingState = viewModel.isLoading.collectAsState()
 
     var id by rememberSaveable { mutableStateOf("") } //텍스트 필드에 입력된 아이디
     var password by rememberSaveable { mutableStateOf("") } //텍스트 필드에 입력된 비밀번호
@@ -51,6 +54,14 @@ fun SignInScreen(
             }
         }
     })
+
+    if(isLoadingState.value) navBackBlocked(2) else navBackWakeup(2)
+
+    BackHandler(
+        enabled = (isLoadingState.value)
+    ) {
+        viewModel.requestRefuse()
+    }
 
     Box(
         modifier = modifier
@@ -72,7 +83,7 @@ fun SignInScreen(
                     val regex = "\\w*".toRegex()
                     if(regex.matches(it)) id = it
                 },
-                enabled = !isLoading.value,
+                enabled = !isLoadingState.value,
                 label = { Text(stringResource(id = R.string.id)) },
                 maxLines = 1,
                 modifier = Modifier
@@ -85,7 +96,7 @@ fun SignInScreen(
                     val regex = "[A-Za-z\\d]*".toRegex()
                     if(regex.matches(it)) password = it
                 },
-                enabled = !isLoading.value,
+                enabled = !isLoadingState.value,
                 label = { Text(stringResource(id = R.string.password)) },
                 maxLines = 1,
                 visualTransformation = PasswordVisualTransformation(),
@@ -95,12 +106,12 @@ fun SignInScreen(
             )
             Button(
                 onClick = { viewModel.signIn(id, password) },
-                enabled = !isLoading.value,
+                enabled = !isLoadingState.value,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp)
             ) {
-                if(isLoading.value) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                if(isLoadingState.value) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 else Text(stringResource(id = R.string.sign_in))
             }
         }
