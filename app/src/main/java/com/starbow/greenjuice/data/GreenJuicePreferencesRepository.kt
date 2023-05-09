@@ -20,13 +20,31 @@ class GreenJuicePreferencesRepository(
             GreenJuiceTheme.fromValue(preferences[THEME] ?: 2)
         }
 
-    private companion object {
+    val accessTokenState = dataStore.data
+        .catch {
+            if(it is IOException) emit(emptyPreferences())
+            else throw it
+        }
+        .map { preferences ->
+            preferences[ACCESS_TOKEN] ?: ""
+        }
+
+    companion object {
         val THEME = intPreferencesKey("theme")
+        val ACCESS_TOKEN = stringPreferencesKey("access_token")
+        val REFRESH_TOKEN = stringPreferencesKey("refresh_token")
     }
 
     suspend fun saveThemePreference(theme: GreenJuiceTheme) {
         dataStore.edit { preferences ->
             preferences[THEME] = theme.ordinal
+        }
+    }
+
+    suspend fun saveToken(accessToken: String, refreshToken: String) {
+        dataStore.edit { preferences ->
+            preferences[ACCESS_TOKEN] = accessToken
+            preferences[REFRESH_TOKEN] = refreshToken
         }
     }
 }

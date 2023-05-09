@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.starbow.greenjuice.Event
+import com.starbow.greenjuice.data.GreenJuicePreferencesRepository
 import com.starbow.greenjuice.data.GreenJuiceRepository
 import com.starbow.greenjuice.enum.EventToastMessage
 import com.starbow.greenjuice.enum.JuiceColor
@@ -27,7 +28,8 @@ const val AMOUNT_DATA = 5 //요청할 때 마다 받아올 데이터 갯수
 const val TAG = "NavHostViewModel"
 
 class GreenJuiceNavHostViewModel(
-    private val greenJuiceRepository: GreenJuiceRepository
+    private val greenJuiceRepository: GreenJuiceRepository,
+    private val greenJuicePrefRepo: GreenJuicePreferencesRepository
 ) : ViewModel() {
     //UI 상태
     private val _uiState = MutableStateFlow(GreenJuiceUiState())
@@ -59,6 +61,8 @@ class GreenJuiceNavHostViewModel(
     //필터가 적용된 데이터
     var resultList = listOf<JuiceItem>()
         private set
+
+    var accessTokenFlow = greenJuicePrefRepo.accessTokenState
 
     //query 값을 재설정
     fun changeQuery(newQuery: String) {
@@ -259,8 +263,11 @@ class GreenJuiceNavHostViewModel(
     fun loadFavorites() {
         favoritesList.clear()
         viewModelScope.launch {
+            var token = ""
+            accessTokenFlow.collect { token = it }
+
             try {
-                favoritesList.addAll(greenJuiceRepository.getFavorites())
+                favoritesList.addAll(greenJuiceRepository.getFavorites(token))
             } catch(e: IOException) {
                 _showToast.value = Event(EventToastMessage.LOAD_DATA_ERROR)
             }
@@ -270,21 +277,26 @@ class GreenJuiceNavHostViewModel(
     //특정 계정의 즐겨찾기 추가
     fun addFavorites(postId: Int) {
         viewModelScope.launch {
-            viewModelScope.launch {
-                try {
-                    greenJuiceRepository.addFavorites(postId)
-                    loadFavorites()
-                } catch(e: IOException) {
-                    _showToast.value = Event(EventToastMessage.ADD_FAV_ERROR)
-                }
+            var token = ""
+            accessTokenFlow.collect { token = it }
+
+            try {
+                greenJuiceRepository.addFavorites(token, postId)
+                loadFavorites()
+            } catch(e: IOException) {
+                _showToast.value = Event(EventToastMessage.ADD_FAV_ERROR)
             }
         }
+
     }
 
     fun deleteFavorites(postId: Int) {
         viewModelScope.launch {
+            var token = ""
+            accessTokenFlow.collect { token = it }
+
             try {
-                greenJuiceRepository.deleteFavorites(postId)
+                greenJuiceRepository.deleteFavorites(token, postId)
                 loadFavorites()
             } catch (e: IOException) {
                 _showToast.value = Event(EventToastMessage.DELETE_FAV_ERROR)

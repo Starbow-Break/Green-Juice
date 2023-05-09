@@ -20,10 +20,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 private const val BASE_URL = "http://10.0.2.2:4000" // <- Node.js 서버 URL 넣기
-private const val THEME_PREFERENCE_NAME = "theme_preferences"
+private const val PREFERENCES_NAME = "preferences"
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
-    name = THEME_PREFERENCE_NAME
+    name = PREFERENCES_NAME
 )
 
 @OptIn(ExperimentalSerializationApi::class)

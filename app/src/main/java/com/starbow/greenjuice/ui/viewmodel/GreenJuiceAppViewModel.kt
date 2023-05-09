@@ -18,7 +18,7 @@ import java.io.IOException
 
 class GreenJuiceAppViewModel(
     private val greenJuiceRepository: GreenJuiceRepository,
-    private val greenJuicePreferencesRepository: GreenJuicePreferencesRepository
+    private val greenJuicePrefRepo: GreenJuicePreferencesRepository
 ) : ViewModel() {
     var signInState = MutableStateFlow(false)
         private set
@@ -31,15 +31,17 @@ class GreenJuiceAppViewModel(
     val showToast: LiveData<Event<EventToastMessage>> = _showToast
 
     val themeState: StateFlow<GreenJuiceTheme>
-        = greenJuicePreferencesRepository.themeOption.stateIn(
+        = greenJuicePrefRepo.themeOption.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = GreenJuiceTheme.SYSTEM
         )
 
+    var accessTokenFlow = greenJuicePrefRepo.accessTokenState
+
     fun updateThemeOption(themeOption: GreenJuiceTheme) {
         viewModelScope.launch {
-            greenJuicePreferencesRepository.saveThemePreference(themeOption)
+            greenJuicePrefRepo.saveThemePreference(themeOption)
         }
     }
 
@@ -50,9 +52,12 @@ class GreenJuiceAppViewModel(
     //로그아웃
     fun signOut() {
         viewModelScope.launch {
+            var token = ""
+            accessTokenFlow.collect { token = it }
+
             try {
                 val result = withContext(Dispatchers.IO) {
-                    greenJuiceRepository.signOut()
+                    greenJuiceRepository.signOut(token)
                 }
                 changeSignInState(result)
                 _showToast.value = Event(EventToastMessage.SIGN_OUT)

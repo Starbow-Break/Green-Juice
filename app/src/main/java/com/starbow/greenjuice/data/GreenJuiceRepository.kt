@@ -2,34 +2,31 @@ package com.starbow.greenjuice.data
 
 import com.starbow.greenjuice.model.JuiceItem
 import com.starbow.greenjuice.network.GreenJuiceApiService
-import com.starbow.greenjuice.serializable.Account
-import com.starbow.greenjuice.serializable.BlogRequest
-import com.starbow.greenjuice.serializable.toBoolean
-import com.starbow.greenjuice.serializable.toJuiceItem
+import com.starbow.greenjuice.serializable.*
 
 interface GreenJuiceRepository {
     suspend fun search(query: String, start: Int, display: Int): List<JuiceItem>
-    suspend fun signIn(id: String, password: String): Boolean
-    suspend fun signOut(): Boolean
+    suspend fun signIn(id: String, password: String): SignInResult
+    suspend fun signOut(token: String): Boolean
     suspend fun signUp(id: String, password: String): Boolean
     suspend fun isIdExist(id: String): Boolean
-    suspend fun getFavorites(): List<JuiceItem>
-    suspend fun addFavorites(postId: Int)
-    suspend fun deleteFavorites(postId: Int)
+    suspend fun getFavorites(token: String): List<JuiceItem>
+    suspend fun addFavorites(token: String, postId: Int)
+    suspend fun deleteFavorites(token: String, postId: Int)
 }
 class NetworkGreenJuiceRepository(
-    private val greenJuiceApiService: GreenJuiceApiService
+    private val greenJuiceApiService: GreenJuiceApiService,
 ) : GreenJuiceRepository {
     override suspend fun search(query: String, start: Int, display: Int): List<JuiceItem> {
         return greenJuiceApiService.search(BlogRequest(query, start, display)).map { it.toJuiceItem() }
     }
 
-    override suspend fun signIn(id: String, password: String): Boolean {
-        return greenJuiceApiService.signIn(Account(id, password)).toBoolean()
+    override suspend fun signIn(id: String, password: String): SignInResult {
+        return greenJuiceApiService.signIn(Account(id, password))
     }
 
-    override suspend fun signOut(): Boolean {
-        return greenJuiceApiService.signOut().toBoolean()
+    override suspend fun signOut(token: String): Boolean {
+        return greenJuiceApiService.signOut(token).resultToBoolean()
     }
 
     override suspend fun signUp(id: String, password: String): Boolean {
@@ -41,15 +38,15 @@ class NetworkGreenJuiceRepository(
         return greenJuiceApiService.isIdExist(id).toBoolean()
     }
 
-    override suspend fun getFavorites(): List<JuiceItem> {
-        return greenJuiceApiService.getFavorites().map { it.toJuiceItem() }
+    override suspend fun getFavorites(token: String): List<JuiceItem> {
+        return greenJuiceApiService.getFavorites(token).map { it.toJuiceItem() }
     }
 
-    override suspend fun addFavorites(postId: Int) {
-        greenJuiceApiService.addFavorites(postId)
+    override suspend fun addFavorites(token: String, postId: Int) {
+        greenJuiceApiService.addFavorites(token, postId)
     }
 
-    override suspend fun deleteFavorites(postId: Int) {
-        greenJuiceApiService.deleteFavorites(postId)
+    override suspend fun deleteFavorites(token: String, postId: Int) {
+        greenJuiceApiService.deleteFavorites(token, postId)
     }
 }

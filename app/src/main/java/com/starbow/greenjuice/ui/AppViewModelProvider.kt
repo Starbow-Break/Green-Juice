@@ -13,7 +13,10 @@ import com.starbow.greenjuice.ui.viewmodel.SignUpViewModel
 object AppViewModelProvider {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
         initializer {
-            GreenJuiceNavHostViewModel(greenJuiceApplication().container.greenJuiceRepository)
+            GreenJuiceNavHostViewModel(
+                greenJuiceApplication().container.greenJuiceRepository,
+                greenJuiceApplication().container.greenJuicePreferencesRepository
+            )
         }
 
         initializer {
@@ -28,7 +31,10 @@ object AppViewModelProvider {
         }
 
         initializer {
-            SignInViewModel(greenJuiceApplication().container.greenJuiceRepository)
+            SignInViewModel(
+                greenJuiceApplication().container.greenJuiceRepository,
+                greenJuiceApplication().container.greenJuicePreferencesRepository
+            )
         }
     }
 }

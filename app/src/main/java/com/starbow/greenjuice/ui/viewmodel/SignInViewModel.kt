@@ -6,8 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.starbow.greenjuice.Event
+import com.starbow.greenjuice.data.GreenJuicePreferencesRepository
 import com.starbow.greenjuice.data.GreenJuiceRepository
 import com.starbow.greenjuice.enum.EventToastMessage
+import com.starbow.greenjuice.serializable.resultToBoolean
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -15,7 +17,8 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class SignInViewModel(
-    private val greenJuiceRepository: GreenJuiceRepository
+    private val greenJuiceRepository: GreenJuiceRepository,
+    private val greenJuicePrefRepo: GreenJuicePreferencesRepository
 ) : ViewModel() {
     var isLoading = MutableStateFlow(false)
         private set
@@ -37,7 +40,8 @@ class SignInViewModel(
                 val result = withContext(Dispatchers.IO) {
                     greenJuiceRepository.signIn(id, password)
                 }
-                if(result) {
+                if(result.resultToBoolean()) {
+                    greenJuicePrefRepo.saveToken(result.getAccessToken(), result.getRefreshToken())
                     _showToast.value = Event(EventToastMessage.SIGN_IN)
                     Log.d("Account", "Sign in Success! Account ID : $id")
                 } else {
