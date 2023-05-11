@@ -15,7 +15,6 @@ object SampleDataSource {
             description = "description1",
             juiceColor = JuiceColor.GREEN,
             sentiment = Sentiment.POSITIVE,
-            hasPowerLink = true,
             hashtags = listOf("keyword1_1", "keyword1_2", "keyword1_3")
         ),
         JuiceItem(
@@ -25,7 +24,6 @@ object SampleDataSource {
             description = "description2",
             juiceColor = JuiceColor.RED,
             sentiment = Sentiment.POSITIVE,
-            hasPowerLink = false,
             hashtags = listOf("keyword2_1", "keyword2_2")
         ),
         JuiceItem(
@@ -35,7 +33,6 @@ object SampleDataSource {
             description = "description3",
             juiceColor = JuiceColor.GREEN,
             sentiment = Sentiment.NEUTRAL,
-            hasPowerLink = true,
             hashtags = listOf("keyword3_1", "keyword3_2", "keyword3_3", "keyword3_4", "keyword3_5")
         ),
         JuiceItem(
@@ -45,7 +42,6 @@ object SampleDataSource {
             description = "description4",
             juiceColor = JuiceColor.ORANGE,
             sentiment = Sentiment.POSITIVE,
-            hasPowerLink = true,
             hashtags = listOf("keyword4_1")
         ),
         JuiceItem(
@@ -55,7 +51,6 @@ object SampleDataSource {
             description = "description5",
             juiceColor = JuiceColor.GREEN,
             sentiment = Sentiment.NEGATIVE,
-            hasPowerLink = false,
             hashtags = listOf("keyword5_1", "keyword5_2", "keyword5_3", "keyword5_4")
         ),
         JuiceItem(
@@ -65,7 +60,6 @@ object SampleDataSource {
             description = "description6",
             juiceColor = JuiceColor.ORANGE,
             sentiment = Sentiment.POSITIVE,
-            hasPowerLink = false,
             hashtags = listOf("keyword6_1", "keyword6_2", "keyword6_3")
         ),
         JuiceItem(
@@ -75,7 +69,6 @@ object SampleDataSource {
             description = "description7",
             juiceColor = JuiceColor.GREEN,
             sentiment = Sentiment.NEGATIVE,
-            hasPowerLink = true,
             hashtags = listOf("keyword7_1", "keyword7_2")
         ),
         JuiceItem(
@@ -85,7 +78,6 @@ object SampleDataSource {
             description = "description8",
             juiceColor = JuiceColor.GREEN,
             sentiment = Sentiment.NEUTRAL,
-            hasPowerLink = false,
             hashtags = listOf("keyword8_1", "keyword8_2")
         ),
         JuiceItem(
@@ -95,7 +87,6 @@ object SampleDataSource {
             description = "description9",
             juiceColor = JuiceColor.RED,
             sentiment = Sentiment.POSITIVE,
-            hasPowerLink = true,
             hashtags = listOf("keyword9_1")
         ),
         JuiceItem(
@@ -105,7 +96,6 @@ object SampleDataSource {
             description = "description10",
             juiceColor = JuiceColor.GREEN,
             sentiment = Sentiment.NEGATIVE,
-            hasPowerLink = false,
             hashtags = listOf("keyword10_1", "keyword10_2", "keyword10_3", "keyword10_4",  "keyword10_5", "keyword10_6")
         )
     )

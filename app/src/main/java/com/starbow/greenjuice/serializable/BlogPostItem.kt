@@ -3,9 +3,7 @@ package com.starbow.greenjuice.serializable
 import com.starbow.greenjuice.enum.JuiceColor
 import com.starbow.greenjuice.enum.Sentiment
 import com.starbow.greenjuice.model.JuiceItem
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.util.*
 
 //서버로부터 받은 데이터를 여기에 객체화해서 저장
 @Serializable
@@ -24,16 +22,20 @@ data class BlogPostItem(
 )
 
 fun BlogPostItem.toJuiceItem(): JuiceItem {
-    val juiceColor = when(juice) {
-        "green", "orange", "red" -> JuiceColor.valueOf(juice.uppercase())
+    val juiceColor = when (juice) {
+        "green" -> {
+            if (powerlink == 1) JuiceColor.ORANGE
+            else JuiceColor.valueOf(juice.uppercase())
+        }
+        "red" -> JuiceColor.valueOf(juice.uppercase())
         else -> null
     }
-    val sentiment = when(sentiment) {
+    val sentiment = when (sentiment) {
         "positive", "neutral", "negative" -> Sentiment.valueOf(sentiment.uppercase())
         else -> null
     }
 
-    val hashtags = if(hashtags != null) {
+    val hashtags = if (hashtags != null) {
         if (hashtags.isBlank() or hashtags.isEmpty()) emptyList()
         else hashtags.split("#").filter { hashtag ->
             hashtag.isNotBlank() and hashtag.isNotEmpty()
@@ -49,7 +51,6 @@ fun BlogPostItem.toJuiceItem(): JuiceItem {
         description = post_description,
         juiceColor = juiceColor,
         sentiment = sentiment,
-        hasPowerLink = powerlink == 1,
         hashtags = hashtags
     )
 }

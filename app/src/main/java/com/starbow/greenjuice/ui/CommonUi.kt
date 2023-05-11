@@ -1,7 +1,6 @@
 package com.starbow.greenjuice.ui
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,7 +15,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -221,12 +219,9 @@ fun SearchResultItem(
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
-            SentimentPowerLinkResultView(
-                sentiment = juiceItem.sentiment,
-                hasPowerLink = juiceItem.hasPowerLink
-            )
+            SentimentView(sentiment = juiceItem.sentiment)
             Spacer(modifier = Modifier.height(16.dp))
-            KeywordsView(juiceItem.hashtags)
+            HashtagsView(juiceItem.hashtags)
         }
     }
 }
@@ -278,25 +273,6 @@ fun JuiceResultViewItem(
     }
 }
 
-//광고성 여부, 긍/부정 여부를 보여주는 컴포저블
-@Composable
-fun SentimentPowerLinkResultView(
-    sentiment: Sentiment?,
-    hasPowerLink: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Column {
-        Row(
-            modifier = modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceAround,
-        ) {
-            SentimentToken(sentiment = sentiment)
-            PowerLinkToken(hasPowerLink = hasPowerLink)
-        }
-    }
-}
-
 //필터 버튼이 보이는 부분
 @Composable
 fun FilterButtonView(
@@ -318,26 +294,49 @@ fun FilterButtonView(
 
 //각 블로그 포스트들의 주요 키워드들을 보여주는 컴포저블
 @Composable
-fun KeywordsView(
-    keywords: List<String>,
+fun SentimentView(
+    sentiment: Sentiment?,
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = stringResource(id = R.string.hashtag_view_title),
-        style = Typography.h3
-    )
-    Spacer(modifier = Modifier.height(8.dp))
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(id = R.string.sentiment_title),
+            style = Typography.h3
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(modifier = Modifier.fillMaxWidth()) {
+            SentimentToken(
+                sentiment = sentiment,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+    }
+}
 
-    if(keywords.isNotEmpty()) {
-        FlowRow(
-            modifier = modifier.fillMaxWidth(),
-            mainAxisSpacing = 8.dp,
-            crossAxisSpacing = 8.dp,
-            mainAxisAlignment = FlowMainAxisAlignment.Center,
-            crossAxisAlignment = FlowCrossAxisAlignment.Center
-        ) {
-            keywords.forEach { keyword ->
-                HashtagToken(keyword = keyword.deleteBoldTag())
+//각 블로그 포스트들의 주요 키워드들을 보여주는 컴포저블
+@Composable
+fun HashtagsView(
+    hashtags: List<String>,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(id = R.string.hashtag_view_title),
+            style = Typography.h3
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (hashtags.isNotEmpty()) {
+            FlowRow(
+                modifier = modifier.fillMaxWidth(),
+                mainAxisSpacing = 8.dp,
+                crossAxisSpacing = 8.dp,
+                mainAxisAlignment = FlowMainAxisAlignment.Center,
+                crossAxisAlignment = FlowCrossAxisAlignment.Center
+            ) {
+                hashtags.forEach { keyword ->
+                    HashtagToken(keyword = keyword.deleteBoldTag())
+                }
             }
         }
     }
@@ -410,34 +409,6 @@ fun SentimentToken(
     }
 }
 
-//파워링크 토큰
-@Composable
-fun PowerLinkToken(
-    hasPowerLink: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val onSurColor = MaterialTheme.colors.onSurface
-    val surColor = MaterialTheme.colors.surface
-
-    val color = if(hasPowerLink) {
-        onSurColor
-    } else {
-        val r = (onSurColor.red+surColor.red*4f)/5f
-        val g = (onSurColor.green+surColor.green*4f)/5f
-        val b = (onSurColor.blue+surColor.blue*4f)/5f
-
-        Log.d("RGB", "r = $r, g = $g, b = $b")
-        Color(r, g, b)
-    }
-
-    WordToken(
-        word = stringResource(id = R.string.power_link_token, if(hasPowerLink) "있음" else "없음"),
-        textColor = color,
-        borderColor = color,
-        modifier = modifier
-    )
-}
-
 @Preview(showBackground = true, heightDp = 100)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, heightDp = 100)
 @Composable
@@ -474,7 +445,6 @@ fun SearchResultItemPreview() {
                 description = "description",
                 juiceColor = JuiceColor.RED,
                 sentiment = Sentiment.POSITIVE,
-                hasPowerLink = false,
                 hashtags = listOf("apple", "banana", "grape", "kiwi", "pineapple", "mint", "dragon fruit"),
             ),
             addFavorites = {},

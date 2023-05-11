@@ -41,6 +41,9 @@ fun SignInScreen(
 
     val isLoadingState = viewModel.isLoading.collectAsState()
 
+    val allowLettersOnId = "abcdefghijklmnopqrstuvwxyzQWERTYUIOPASDFGHJKLZXCVBNM1234567890_"
+    val allowLettersOnPassword = "abcdefghijklmnopqrstuvwxyzQWERTYUIOPASDFGHJKLZXCVBNM1234567890"
+
     var id by rememberSaveable { mutableStateOf("") } //텍스트 필드에 입력된 아이디
     var password by rememberSaveable { mutableStateOf("") } //텍스트 필드에 입력된 비밀번호
 
@@ -79,9 +82,8 @@ fun SignInScreen(
         ) {
             TextField(
                 value = id,
-                onValueChange = {
-                    val regex = "\\w*".toRegex()
-                    if(regex.matches(it)) id = it
+                onValueChange = { text ->
+                    id = text.filter{ allowLettersOnId.contains(it) }
                 },
                 enabled = !isLoadingState.value,
                 label = { Text(stringResource(id = R.string.id)) },
@@ -92,9 +94,8 @@ fun SignInScreen(
             )
             TextField(
                 value = password,
-                onValueChange = {
-                    val regex = "[A-Za-z\\d]*".toRegex()
-                    if(regex.matches(it)) password = it
+                onValueChange = { text ->
+                    password = text.filter{ allowLettersOnPassword.contains(it) }
                 },
                 enabled = !isLoadingState.value,
                 label = { Text(stringResource(id = R.string.password)) },

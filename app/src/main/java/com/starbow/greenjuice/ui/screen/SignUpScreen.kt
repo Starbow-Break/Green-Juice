@@ -41,6 +41,9 @@ fun SignUpScreen(
     val isValidState = viewModel.isValid.collectAsState()
     val isValidLoadingState = viewModel.isValidLoading.collectAsState()
 
+    val allowLettersOnId = "abcdefghijklmnopqrstuvwxyzQWERTYUIOPASDFGHJKLZXCVBNM1234567890_"
+    val allowLettersOnPassword = "abcdefghijklmnopqrstuvwxyzQWERTYUIOPASDFGHJKLZXCVBNM1234567890"
+
     var id by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordCheck by rememberSaveable { mutableStateOf("") }
@@ -78,9 +81,8 @@ fun SignUpScreen(
                 textFieldEnabled = !isValidState.value,
                 value = id,
                 description = "6~18자리/영문 대소문자, 숫자, 특수문자'_' 조합",
-                onValueChange = {
-                    val regex = "\\w*".toRegex()
-                    if(regex.matches(it)) id = it
+                onValueChange = { text ->
+                    id = text.filter{ allowLettersOnId.contains(it) }
                 },
                 label = { Text(stringResource(id = R.string.id)) },
                 buttonEnabled = validId(id) and !isValidState.value and !isValidLoadingState.value,
@@ -99,9 +101,8 @@ fun SignUpScreen(
             PasswordTextField(
                 value = password,
                 description = "6~18자리/영문 대소문자, 숫자 조합",
-                onValueChange = {
-                    val regex = "[A-Za-z\\d]*".toRegex()
-                    if(regex.matches(it)) password = it
+                onValueChange = { text ->
+                    password = text.filter{ allowLettersOnPassword.contains(it) }
                 },
                 label = { Text(stringResource(id = R.string.password)) },
                 maxLines = 1,
@@ -112,9 +113,8 @@ fun SignUpScreen(
             )
             PasswordTextField(
                 value = passwordCheck,
-                onValueChange = {
-                    val regex = "[A-Za-z\\d]*".toRegex()
-                    if(regex.matches(it)) passwordCheck = it
+                onValueChange = { text ->
+                    passwordCheck = text.filter{ allowLettersOnPassword.contains(it) }
                 },
                 label = { Text(stringResource(id = R.string.password_check)) },
                 maxLines = 1,
