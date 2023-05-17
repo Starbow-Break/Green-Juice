@@ -31,6 +31,7 @@ fun FavoritesScreen(
                 juiceItem = favorites,
                 onCardClick = onItemClick,
                 showFavorites = true,
+                isFavorite = true,
                 addFavorites = addFavorites,
                 deleteFavorites = deleteFavorites,
                 modifier = Modifier.padding(4.dp)

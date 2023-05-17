@@ -43,6 +43,7 @@ fun SearchResultScreen(
     juiceStatistics: JuiceStatistics,
     sentimentStatistics: SentimentStatistics,
     searchItems: List<JuiceItem>,
+    isSignIn: Boolean,
     favoritesItems: List<JuiceItem>,
     modifier: Modifier = Modifier,
     query: String = "",
@@ -99,6 +100,7 @@ fun SearchResultScreen(
                         onAddDataClick = onAddDataClick,
                         showAddButton = showAddButton,
                         onCardClick = onItemClick,
+                        isSignIn = isSignIn,
                         addFavorites = addFavorites,
                         deleteFavorites = deleteFavorites,
                         modifier = Modifier
@@ -368,7 +370,8 @@ fun LoadingPreview() {
             searchItems = SampleDataSource.dataList,
             favoritesItems = listOf(),
             juiceStatistics = JuiceStatistics(3, 4, 2),
-            sentimentStatistics = SentimentStatistics(5, 4)
+            sentimentStatistics = SentimentStatistics(5, 4),
+            isSignIn = true
         )
     }
 }
@@ -383,7 +386,8 @@ fun NetWorkErrorPreview() {
             searchItems = SampleDataSource.dataList,
             favoritesItems = listOf(),
             juiceStatistics = JuiceStatistics(3, 4, 2),
-            sentimentStatistics = SentimentStatistics(5, 4)
+            sentimentStatistics = SentimentStatistics(5, 4),
+            isSignIn = false
         )
     }
 }
@@ -398,7 +402,8 @@ fun SearchResultWindowPreview() {
             searchItems = SampleDataSource.dataList,
             favoritesItems = listOf(),
             juiceStatistics = JuiceStatistics(3, 4, 2),
-            sentimentStatistics = SentimentStatistics(5, 4)
+            sentimentStatistics = SentimentStatistics(5, 4),
+            isSignIn = true
         )
     }
 }
@@ -413,7 +418,8 @@ fun SearchResultWindowWithEmptySearchItemPreview() {
             searchItems = listOf(),
             favoritesItems = listOf(),
             juiceStatistics = JuiceStatistics(0, 0, 0),
-            sentimentStatistics = SentimentStatistics(0, 0)
+            sentimentStatistics = SentimentStatistics(0, 0),
+            isSignIn = false
         )
     }
 }

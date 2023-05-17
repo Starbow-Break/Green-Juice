@@ -50,9 +50,17 @@ fun GreenJuiceNavHost(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    var selectedJuiceIndex by rememberSaveable { mutableStateOf(-1) }
-    var selectedSentimentIndex by rememberSaveable { mutableStateOf(-1) }
-    var selectedThemeIndex by rememberSaveable { mutableStateOf(-1) }
+    val juiceFilterOption = appUiState.value.juiceFilterOption
+    val sentimentFilterOption = appUiState.value.sentimentFilterOption
+
+    val juiceFilterOptionIndex: Int = if(juiceFilterOption != null) juiceFilterOption.ordinal+1 else 0
+    val sentimentFilterOptionIndex: Int = if(sentimentFilterOption != null) sentimentFilterOption.ordinal+1 else 0
+
+    var selectedJuiceFilterOptionIndex by rememberSaveable { mutableStateOf(juiceFilterOptionIndex) }
+    var selectedSentimentFilterOptionIndex by rememberSaveable { mutableStateOf(sentimentFilterOptionIndex) }
+
+    val accessTokenState = viewModel.accessTokenStateFlow.collectAsState()
+    val refreshTokenState = viewModel.refreshTokenStateFlow.collectAsState()
 
     Log.d(TAG, "AdState = ${appUiState.value.juiceFilterOption} Sentiment = ${appUiState.value.sentimentFilterOption}")
 
@@ -75,30 +83,6 @@ fun GreenJuiceNavHost(
         stringResource(id = GreenJuiceTheme.DARK.stringRes),
         stringResource(id = GreenJuiceTheme.SYSTEM.stringRes)
     )
-
-    val juiceIndex: Int = when(appUiState.value.juiceFilterOption) {
-        null -> 0
-        JuiceColor.GREEN -> 1
-        JuiceColor.ORANGE -> 2
-        JuiceColor.RED -> 3
-    }
-
-    val sentimentIndex: Int = when(appUiState.value.sentimentFilterOption) {
-        null -> 0
-        Sentiment.POSITIVE -> 1
-        Sentiment.NEUTRAL -> 2
-        Sentiment.NEGATIVE -> 3
-    }
-
-    val themeIndex: Int = when(theme) {
-        GreenJuiceTheme.LIGHT -> 0
-        GreenJuiceTheme.DARK -> 1
-        GreenJuiceTheme.SYSTEM -> 2
-    }
-
-    if(selectedJuiceIndex == -1) selectedJuiceIndex = juiceIndex
-    if(selectedSentimentIndex == -1) selectedSentimentIndex = sentimentIndex
-    Log.d(TAG, "** $theme ** $selectedThemeIndex, $themeIndex")
 
     viewModel.showToast.observe(lifecycleOwner, Observer {
         it.getContentIfNotHandled()?.let { toastMessage ->
@@ -151,7 +135,7 @@ fun GreenJuiceNavHost(
                 },
                 doSuccessSignIn = {
                     changeSignInState(true)
-                    viewModel.loadFavorites()
+                    viewModel.loadFavorites(accessTokenState.value, refreshTokenState.value)
                     navController.navigateUp()
                 },
                 navBackBlocked = navBackBlocked,
@@ -176,47 +160,31 @@ fun GreenJuiceNavHost(
                 //필터 버튼을 클릭한 상태라면 필터 화면을 활성화한다.
                 FilterDialog(
                     adStateOptions = juiceOptions,
-                    selectedJuiceOptionIndex = selectedJuiceIndex,
-                    onJuiceChanged = { selectedJuiceIndex = it },
+                    selectedJuiceOptionIndex = selectedJuiceFilterOptionIndex,
+                    onJuiceChanged = { selectedJuiceFilterOptionIndex = it },
                     sentimentOptions = sentimentOptions,
-                    selectedSentimentOptionIndex = selectedSentimentIndex,
-                    onSentimentChanged = { selectedSentimentIndex = it },
+                    selectedSentimentOptionIndex = selectedSentimentFilterOptionIndex,
+                    onSentimentChanged = { selectedSentimentFilterOptionIndex = it },
                     onDismissRequest = {
-                        selectedJuiceIndex = juiceIndex
-                        selectedSentimentIndex = sentimentIndex
+                        selectedJuiceFilterOptionIndex = juiceFilterOptionIndex
+                        selectedSentimentFilterOptionIndex = sentimentFilterOptionIndex
 
                         viewModel.filterDialogDisabled()
                     },
                     onConfirmButtonClick = {
-                        val nextFilterJuice = when (selectedJuiceIndex) {
-                            0 -> null
-                            1 -> JuiceColor.GREEN
-                            2 -> JuiceColor.ORANGE
-                            3 -> JuiceColor.RED
-                            else -> {
-                                //예외 처리
-                                null
-                            }
-                        }
+                        val nextFilterJuice = if (selectedJuiceFilterOptionIndex == 0) null
+                        else JuiceColor.values()[selectedJuiceFilterOptionIndex-1]
 
-                        val nextFilterSentiment = when (selectedSentimentIndex) {
-                            0 -> null
-                            1 -> Sentiment.POSITIVE
-                            2 -> Sentiment.NEUTRAL
-                            3 -> Sentiment.NEGATIVE
-                            else -> {
-                                //예외 처리
-                                null
-                            }
-                        }
+                        val nextFilterSentiment = if(selectedSentimentFilterOptionIndex == 0) null
+                        else Sentiment.values()[selectedSentimentFilterOptionIndex-1]
 
                         viewModel.changeFilterState(
                             adState = nextFilterJuice, sentiment = nextFilterSentiment
                         )
                     },
                     onDismissButtonClick = {
-                        selectedJuiceIndex = juiceIndex
-                        selectedSentimentIndex = sentimentIndex
+                        selectedJuiceFilterOptionIndex = juiceFilterOptionIndex
+                        selectedSentimentFilterOptionIndex = sentimentFilterOptionIndex
 
                         viewModel.filterDialogDisabled()
                     }
@@ -258,11 +226,12 @@ fun GreenJuiceNavHost(
                         Toast.makeText(context, "해당 블로그 포스트에 접속할 수 없습니다.", Toast.LENGTH_SHORT).show()
                     }
                 },
+                isSignIn = isSignIn,
                 addFavorites = { postId ->
-                    viewModel.addFavorites(postId)
+                    viewModel.addFavorites(accessTokenState.value, refreshTokenState.value, postId)
                 },
                 deleteFavorites = { postId ->
-                    viewModel.deleteFavorites(postId)
+                    viewModel.deleteFavorites(accessTokenState.value, refreshTokenState.value, postId)
                 }
             )
         }
@@ -270,23 +239,11 @@ fun GreenJuiceNavHost(
         composable(
             route = GreenJuiceScreen.THEME.name
         ) {
-            if(selectedThemeIndex == -1) selectedThemeIndex = themeIndex
-
             ThemeSettingScreen(
                 themeOptions = themeOptions,
-                selectedThemeOptionIndex = selectedThemeIndex,
-                onSelectedChanged = {
-                    selectedThemeIndex = it
-
-                    val themeOption: GreenJuiceTheme = when(selectedThemeIndex) {
-                        0 -> GreenJuiceTheme.LIGHT
-                        1 -> GreenJuiceTheme.DARK
-                        2 -> GreenJuiceTheme.SYSTEM
-                        else -> {
-                            //예외 처리
-                            GreenJuiceTheme.SYSTEM
-                        }
-                    }
+                selectedThemeOptionIndex = theme.ordinal,
+                onSelectedChanged = { selectedIndex ->
+                    val themeOption: GreenJuiceTheme = GreenJuiceTheme.values()[selectedIndex]
                     changeThemeOption(themeOption)
                 }
             )
@@ -332,8 +289,8 @@ fun GreenJuiceNavHost(
                         Toast.makeText(context, "해당 블로그 포스트에 접속할 수 없습니다.", Toast.LENGTH_SHORT).show()
                     }
                 },
-                addFavorites = { postId -> viewModel.addFavorites(postId) },
-                deleteFavorites = { postId -> viewModel.deleteFavorites(postId) }
+                addFavorites = { postId -> viewModel.addFavorites(accessTokenState.value, refreshTokenState.value, postId) },
+                deleteFavorites = { postId -> viewModel.deleteFavorites(accessTokenState.value, refreshTokenState.value, postId) }
             )
         }
     }

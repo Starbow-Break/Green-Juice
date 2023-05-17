@@ -38,14 +38,12 @@ class GreenJuiceApplication : Application() {
             .writeTimeout(300, TimeUnit.SECONDS)
             .build()
 
-        val retrofitService = Retrofit.Builder()
-            //.addConverterFactory(Json.asConverterFactory(MediaType.get("application/json")))
+        val retrofit = Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .build()
-            .create(GreenJuiceApiService::class.java)
 
-        container = GreenJuiceAppContainer(dataStore, retrofitService)
+        container = GreenJuiceAppContainer(dataStore, retrofit)
     }
 }

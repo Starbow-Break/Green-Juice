@@ -27,7 +27,10 @@
     <string name="sign_in_error">로그인 중 오류가 발생했습니다.</string>
     <string name="sign_out_error">로그아웃 중 오류가 발생했습니다.</string>
     <string name="sign_up_error">회원가입 중 오류가 발생했습니다.</string>
+    <string name="sign_up_success">회원가입 성공</string>
+    <string name="add_favorites">즐겨찾기에 추가했습니다.</string>
     <string name="add_favorites_error">즐겨찾기 추가에 실패했습니다.</string>
+    <string name="delete_favorites">즐겨찾기에서 제거됐습니다.</string>
     <string name="delete_favorites_error">즐겨찾기 제거에 실패했습니다.</string>
 
     <string name="empty_query_message">검색어를 입력해주세요.</string>
@@ -39,7 +42,7 @@
     <string name="confirm_button_text">확인</string>
     <string name="dismiss_button_text">취소</string>
 
-    <string name="search_item_amount">%d results of found</string>
+    <string name="search_item_amount">포스트 갯수: %d개</string>
     <string name="statistics_indicator_description">%s: %d개</string>
     <string name="analysis_result_view_title">분석 결과</string>
 

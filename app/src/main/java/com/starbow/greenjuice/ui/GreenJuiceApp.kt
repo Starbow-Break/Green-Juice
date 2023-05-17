@@ -28,6 +28,7 @@ import com.starbow.greenjuice.enum.GreenJuiceTheme
 import com.starbow.greenjuice.ui.navigation.GreenJuiceNavHost
 import com.starbow.greenjuice.ui.theme.GreenJuiceTheme
 import com.starbow.greenjuice.ui.viewmodel.GreenJuiceAppViewModel
+import kotlinx.coroutines.flow.stateIn
 
 //루트 컴포저블
 @Composable
@@ -50,13 +51,17 @@ fun GreenJuiceApp(
 
     var showMenu by remember { mutableStateOf(false) }
 
+    val accessTokenState = viewModel.accessTokenStateFlow.collectAsState()
+    val refreshTokenState = viewModel.refreshTokenStateFlow.collectAsState()
+
     viewModel.showToast.observe(lifecycleOwner, Observer {
         it.getContentIfNotHandled()?.let { errorToast ->
             Toast.makeText(context, errorToast.messageRes, Toast.LENGTH_SHORT).show()
         }
     })
 
-    Log.d("navBackEnabledState", "navBackEnabledState = ${navBackEnabledState.value}" )
+    Log.d("NavBackEnabledState", "navBackEnabledState = ${navBackEnabledState.value}" )
+    Log.d("ThemeState", "current theme option = $themeState")
 
     GreenJuiceTheme(
         darkTheme = when(currentTheme) {
@@ -77,7 +82,8 @@ fun GreenJuiceApp(
                     GreenJuiceScreen.FAVORITES ->
                         GreenJuiceTitleTopBar(
                             title = currentScreen.title,
-                            canNavigateBack = (navController.previousBackStackEntry != null) and navBackEnabledState.value,
+                            canNavigateBack = (navController.previousBackStackEntry != null)
+                                    and (navBackEnabledState.value or (currentScreen == GreenJuiceScreen.FAVORITES)),
                             navigateUp = { navController.navigateUp() },
                         )
                     else -> {
@@ -88,7 +94,7 @@ fun GreenJuiceApp(
                                     or (currentScreen == GreenJuiceScreen.WEB_VIEW)),
                             showMenu = showMenu,
                             isSignIn = signInState.value,
-                            canNavigateBack = (navController.previousBackStackEntry != null) and navBackEnabledState.value,
+                            canNavigateBack = (navController.previousBackStackEntry != null) and (navBackEnabledState.value),
                             navigateUp = { navController.navigateUp() },
                             navigateTheme = { navController.navigate(GreenJuiceScreen.THEME.name) },
                             onClickAccount = { showMenu = !showMenu },
@@ -98,7 +104,7 @@ fun GreenJuiceApp(
                                 showMenu = false
                             },
                             onClickSignOut = {
-                                viewModel.signOut()
+                                viewModel.signOut(accessTokenState.value, refreshTokenState.value)
                                 showMenu = false
                             },
                             navigateSignIn = {

@@ -195,14 +195,19 @@ fun SearchResultItem(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = juiceItem.title.deleteBoldTag(), style = Typography.h3)
+                        Text(
+                            text = juiceItem.title.deleteBoldTag(),
+                            style = Typography.h3,
+                            modifier = Modifier.weight(1f)
+                        )
 
                         if(showFavorites) {
                             IconButton(
                                 onClick = {
                                     if(isFavorite) deleteFavorites(juiceItem.id)
                                     else addFavorites(juiceItem.id)
-                                }
+                                },
+                                modifier = Modifier.size(48.dp)
                             ) {
                                 Icon(
                                     painter = painterResource(

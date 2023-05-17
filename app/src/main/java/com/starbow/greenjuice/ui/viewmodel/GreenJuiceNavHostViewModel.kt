@@ -15,13 +15,20 @@ import com.starbow.greenjuice.enum.Sentiment
 import com.starbow.greenjuice.model.JuiceStatistics
 import com.starbow.greenjuice.model.JuiceItem
 import com.starbow.greenjuice.model.SentimentStatistics
+import com.starbow.greenjuice.serializable.toJuiceItem
 import com.starbow.greenjuice.ui.GreenJuiceNetworkUiState
 import com.starbow.greenjuice.ui.GreenJuiceUiState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 const val AMOUNT_DATA = 5 //요청할 때 마다 받아올 데이터 갯수
@@ -62,7 +69,18 @@ class GreenJuiceNavHostViewModel(
     var resultList = listOf<JuiceItem>()
         private set
 
-    var accessTokenFlow = greenJuicePrefRepo.accessTokenState
+    var accessTokenStateFlow = greenJuicePrefRepo.accessTokenState.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ""
+    )
+        private set
+    var refreshTokenStateFlow = greenJuicePrefRepo.refreshTokenState.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ""
+    )
+        private set
 
     //query 값을 재설정
     fun changeQuery(newQuery: String) {
@@ -260,44 +278,85 @@ class GreenJuiceNavHostViewModel(
         }
     }
 
-    fun loadFavorites() {
-        favoritesList.clear()
-        viewModelScope.launch {
-            var token = ""
-            accessTokenFlow.collect { token = it }
+    private suspend fun getNewToken(accessToken: String, refreshToken: String) {
+        try {
+            val tokenResponse = greenJuiceRepository.getNewToken(accessToken, refreshToken)
+            val ok = tokenResponse.body()?.getOk()
+            val newAccessToken = tokenResponse.body()?.getAccessToken() ?: ""
+            val newRefreshToken = tokenResponse.body()?.getRefreshToken() ?: ""
 
-            try {
-                favoritesList.addAll(greenJuiceRepository.getFavorites(token))
-            } catch(e: IOException) {
-                _showToast.value = Event(EventToastMessage.LOAD_DATA_ERROR)
-            }
+            greenJuicePrefRepo.saveToken(newAccessToken, newRefreshToken)
+            Log.d("Get New Tokens!", "OK? : $ok")
+            Log.d("Get New Tokens!", "Access Token : $newAccessToken\n" +
+                        "Refresh Token : $newRefreshToken")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.d("Get New Token", "토큰 획득 실패")
+        }
+
+    }
+
+    fun loadFavorites(accessToken: String, refreshToken: String) {
+        favoritesList.clear()
+
+        viewModelScope.launch {
+             try {
+                 val response = greenJuiceRepository.getFavorites(accessToken, refreshToken)
+
+                 Log.d("Use Tokens! load fav", "Access Token : $accessToken\n" +
+                         "Refresh Token : $refreshToken")
+
+                 if (response.body() != null && response.isSuccessful) {
+                     favoritesList.addAll(
+                         response.body()?.map { blogPostItem -> blogPostItem.toJuiceItem() }
+                             ?: emptyList()
+                     )
+                 } else {
+                     //토큰 만료 메시지를 받으면 토큰 재 발급 후 재요청
+                     getNewToken(accessToken, refreshToken)
+                 }
+             } catch (e: IOException) {
+                 _showToast.value = Event(EventToastMessage.LOAD_DATA_ERROR)
+             }
+
         }
     }
 
     //특정 계정의 즐겨찾기 추가
-    fun addFavorites(postId: Int) {
+    fun addFavorites(accessToken: String, refreshToken: String, postId: Int) {
         viewModelScope.launch {
-            var token = ""
-            accessTokenFlow.collect { token = it }
-
             try {
-                greenJuiceRepository.addFavorites(token, postId)
-                loadFavorites()
+                val response = greenJuiceRepository.addFavorites(accessToken, refreshToken, postId)
+
+                if (response.isSuccessful) {
+                    loadFavorites(accessToken, refreshToken)
+                } else {
+                    getNewToken(accessToken, refreshToken)
+                    val newAccessToken = accessTokenStateFlow.value
+                    val newRefreshToken = refreshTokenStateFlow.value
+                    addFavorites(newAccessToken, newRefreshToken, postId)
+                }
             } catch(e: IOException) {
                 _showToast.value = Event(EventToastMessage.ADD_FAV_ERROR)
             }
         }
-
     }
 
-    fun deleteFavorites(postId: Int) {
+    fun deleteFavorites(accessToken: String, refreshToken: String, postId: Int) {
         viewModelScope.launch {
-            var token = ""
-            accessTokenFlow.collect { token = it }
-
             try {
-                greenJuiceRepository.deleteFavorites(token, postId)
-                loadFavorites()
+                val response = greenJuiceRepository.deleteFavorites(accessToken, refreshToken, postId)
+
+                if (response.isSuccessful) {
+                    loadFavorites(accessToken, refreshToken)
+                } else {
+                    getNewToken(accessToken, refreshToken)
+                    delay(100)
+                    val newAccessToken = accessTokenStateFlow.value
+                    val newRefreshToken = refreshTokenStateFlow.value
+                    Log.d("RESTART", "restart")
+                    deleteFavorites(newAccessToken, newRefreshToken, postId)
+                }
             } catch (e: IOException) {
                 _showToast.value = Event(EventToastMessage.DELETE_FAV_ERROR)
             }

@@ -29,6 +29,15 @@ class GreenJuicePreferencesRepository(
             preferences[ACCESS_TOKEN] ?: ""
         }
 
+    val refreshTokenState = dataStore.data
+        .catch {
+            if(it is IOException) emit(emptyPreferences())
+            else throw it
+        }
+        .map { preferences ->
+            preferences[REFRESH_TOKEN] ?: ""
+        }
+
     companion object {
         val THEME = intPreferencesKey("theme")
         val ACCESS_TOKEN = stringPreferencesKey("access_token")

@@ -1,5 +1,6 @@
 package com.starbow.greenjuice.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -37,7 +38,18 @@ class GreenJuiceAppViewModel(
             initialValue = GreenJuiceTheme.SYSTEM
         )
 
-    var accessTokenFlow = greenJuicePrefRepo.accessTokenState
+    var accessTokenStateFlow = greenJuicePrefRepo.accessTokenState.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ""
+    )
+        private set
+    var refreshTokenStateFlow = greenJuicePrefRepo.refreshTokenState.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ""
+    )
+        private set
 
     fun updateThemeOption(themeOption: GreenJuiceTheme) {
         viewModelScope.launch {
@@ -50,16 +62,13 @@ class GreenJuiceAppViewModel(
     }
 
     //로그아웃
-    fun signOut() {
+    fun signOut(accessToken: String, refreshToken: String) {
         viewModelScope.launch {
-            var token = ""
-            accessTokenFlow.collect { token = it }
-
             try {
                 val result = withContext(Dispatchers.IO) {
-                    greenJuiceRepository.signOut(token)
+                    greenJuiceRepository.signOut(accessToken, refreshToken)
                 }
-                changeSignInState(result)
+                changeSignInState(!result)
                 _showToast.value = Event(EventToastMessage.SIGN_OUT)
             } catch(e: IOException) {
                 _showToast.value = Event(EventToastMessage.SIGN_OUT_ERROR)

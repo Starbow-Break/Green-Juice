@@ -1,13 +1,14 @@
 package com.starbow.greenjuice.serializable
 
-import android.util.Log
 import kotlinx.serialization.Serializable
 
 @Serializable
-class SignInResult(
-    private val login: String,
+class TokenResponse(
+    private val ok: Boolean,
     private val accessToken: String,
+    private val refreshToken : String
 ) {
-    fun getLogin() = login.toBoolean()
+    fun getOk() = ok
     fun getAccessToken() = accessToken
+    fun getRefreshToken() = refreshToken
 }

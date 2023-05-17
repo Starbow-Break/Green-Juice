@@ -1,5 +1,6 @@
 package com.starbow.greenjuice.ui.viewmodel
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -25,6 +26,7 @@ class SignUpViewModel(
     val showToast: LiveData<Event<EventToastMessage>> = _showToast
 
     fun isIdExist(id: String) {
+        //isValid.value = true
         if(isValidLoading.value) {
             _showToast.value = Event(EventToastMessage.REFUSE)
             return
@@ -35,6 +37,13 @@ class SignUpViewModel(
         viewModelScope.launch {
             try {
                 val result = greenJuiceRepository.isIdExist(id)
+
+                _showToast.value = Event(
+                    if(result) EventToastMessage.DUPLICATION_ID
+                    else EventToastMessage.VALID_ID
+                )
+
+
                 isValid.value = !result
             } catch(e: IOException) {
                 _showToast.value = Event(EventToastMessage.NETWORK_ERROR)
