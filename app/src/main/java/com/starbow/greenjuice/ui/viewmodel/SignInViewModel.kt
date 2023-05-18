@@ -51,7 +51,7 @@ class SignInViewModel(
                     Log.d("Tokens", "Access Token : $accessToken\nRefresh Token : $refreshToken")
 
                     greenJuicePrefRepo.saveToken(accessToken, refreshToken)
-                    delay(1) //새로 생성된 토큰을 다른 곳에서도 잘 쓸 수 있도록 아주 약간의 delay 추가
+                    delay(1) //다른 곳에서도 토큰을 안정적으로 사용할 수 잇도록 아주 약간의 delay 추가
                     _showToast.value = Event(EventToastMessage.SIGN_IN)
                     Log.d("Account", "Sign in Success! Account ID : $id")
                 } else {

@@ -32,8 +32,6 @@ fun SignInScreen(
     modifier: Modifier = Modifier,
     viewModel: SignInViewModel = viewModel(factory = AppViewModelProvider.Factory),
     doSuccessSignIn: () -> Unit = {},
-    navBackBlocked: (Int) -> Unit = {_ -> },
-    navBackWakeup: (Int) -> Unit = {_ -> }
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -57,8 +55,6 @@ fun SignInScreen(
             }
         }
     })
-
-    if(isLoadingState.value) navBackBlocked(2) else navBackWakeup(2)
 
     BackHandler(
         enabled = (isLoadingState.value)
@@ -112,7 +108,7 @@ fun SignInScreen(
                     .fillMaxWidth()
                     .padding(top = 24.dp)
             ) {
-                if(isLoadingState.value) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                if(isLoadingState.value) CircularProgressIndicator(color = MaterialTheme.colors.onSurface, modifier = Modifier.size(24.dp))
                 else Text(stringResource(id = R.string.sign_in))
             }
         }

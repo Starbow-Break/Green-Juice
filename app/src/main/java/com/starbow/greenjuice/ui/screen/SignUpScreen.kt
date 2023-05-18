@@ -31,8 +31,6 @@ fun SignUpScreen(
     modifier: Modifier = Modifier,
     viewModel: SignUpViewModel = viewModel(factory = AppViewModelProvider.Factory),
     doSuccessSignUp: () -> Unit = {},
-    navBackBlocked: (Int) -> Unit = {_ -> },
-    navBackWakeup: (Int) -> Unit = {_ -> }
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -40,6 +38,7 @@ fun SignUpScreen(
 
     val isValidState = viewModel.isValid.collectAsState()
     val isValidLoadingState = viewModel.isValidLoading.collectAsState()
+    val signUpLoadingState = viewModel.signUpLoading.collectAsState()
 
     val allowLettersOnId = "abcdefghijklmnopqrstuvwxyzQWERTYUIOPASDFGHJKLZXCVBNM1234567890_"
     val allowLettersOnPassword = "abcdefghijklmnopqrstuvwxyzQWERTYUIOPASDFGHJKLZXCVBNM1234567890"
@@ -54,8 +53,6 @@ fun SignUpScreen(
             Toast.makeText(context, toastMessage.messageRes, Toast.LENGTH_SHORT).show()
         }
     })
-
-    if(isValidState.value or isValidLoadingState.value) navBackBlocked(3) else navBackWakeup(3)
 
     BackHandler(
         enabled = isValidState.value or isValidLoadingState.value
@@ -87,7 +84,8 @@ fun SignUpScreen(
                 label = { Text(stringResource(id = R.string.id)) },
                 buttonEnabled = validId(id) and !isValidState.value and !isValidLoadingState.value,
                 buttonLabel = {
-                    if(isValidLoadingState.value) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    if(isValidLoadingState.value)
+                        CircularProgressIndicator(color = MaterialTheme.colors.onSurface, modifier = Modifier.size(24.dp))
                     else Text(text = "확인")
                 },
                 onButtonClick = {
@@ -127,12 +125,14 @@ fun SignUpScreen(
                 onClick = {
                     viewModel.signUp(id, password)
                 },
-                enabled = isValidState.value and validPassword(password) and (password == passwordCheck),
+                enabled = isValidState.value and validPassword(password) and (password == passwordCheck) and !signUpLoadingState.value,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp)
             ) {
-                Text(stringResource(id = R.string.sign_up))
+                if(signUpLoadingState.value)
+                    CircularProgressIndicator(color = MaterialTheme.colors.onSurface, modifier = Modifier.size(24.dp))
+                else Text(stringResource(id = R.string.sign_up))
             }
         }
     }

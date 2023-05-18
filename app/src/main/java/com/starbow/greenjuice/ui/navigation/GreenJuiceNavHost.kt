@@ -130,16 +130,13 @@ fun GreenJuiceNavHost(
         ) {
             SignInScreen(
                 onClickSignUp = {
-                    if(loading) viewModel.requestRefuse()
-                    else navController.navigate(GreenJuiceScreen.SIGN_UP.name)
+                    navController.navigate(GreenJuiceScreen.SIGN_UP.name)
                 },
                 doSuccessSignIn = {
                     changeSignInState(true)
                     viewModel.loadFavorites(accessTokenState.value, refreshTokenState.value)
                     navController.navigateUp()
-                },
-                navBackBlocked = navBackBlocked,
-                navBackWakeup = navBackWakeup
+                }
             )
         }
 
@@ -148,8 +145,6 @@ fun GreenJuiceNavHost(
         ) {
             SignUpScreen(
                 doSuccessSignUp = { navController.navigateUp() },
-                navBackBlocked = navBackBlocked,
-                navBackWakeup = navBackWakeup
             )
         }
 

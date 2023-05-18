@@ -28,7 +28,6 @@ import com.starbow.greenjuice.enum.GreenJuiceTheme
 import com.starbow.greenjuice.ui.navigation.GreenJuiceNavHost
 import com.starbow.greenjuice.ui.theme.GreenJuiceTheme
 import com.starbow.greenjuice.ui.viewmodel.GreenJuiceAppViewModel
-import kotlinx.coroutines.flow.stateIn
 
 //루트 컴포저블
 @Composable
@@ -79,19 +78,16 @@ fun GreenJuiceApp(
                     GreenJuiceScreen.THEME,
                     GreenJuiceScreen.SIGN_IN,
                     GreenJuiceScreen.SIGN_UP,
-                    GreenJuiceScreen.FAVORITES ->
+                    GreenJuiceScreen.FAVORITES,
+                    GreenJuiceScreen.WEB_VIEW ->
                         GreenJuiceTitleTopBar(
                             title = currentScreen.title,
-                            canNavigateBack = (navController.previousBackStackEntry != null)
-                                    and (navBackEnabledState.value or (currentScreen == GreenJuiceScreen.FAVORITES)),
+                            canNavigateBack = navController.previousBackStackEntry != null,
                             navigateUp = { navController.navigateUp() },
                         )
                     else -> {
                         GreenJuiceIconTopBar(
-                            showIcon = currentScreen != GreenJuiceScreen.WEB_VIEW,
-                            showTheme = currentScreen != GreenJuiceScreen.WEB_VIEW,
-                            showSignIn = !(((currentScreen == GreenJuiceScreen.MAIN) and !signInState.value)
-                                    or (currentScreen == GreenJuiceScreen.WEB_VIEW)),
+                            showSignIn = !(((currentScreen == GreenJuiceScreen.MAIN) and !signInState.value)),
                             showMenu = showMenu,
                             isSignIn = signInState.value,
                             canNavigateBack = (navController.previousBackStackEntry != null) and (navBackEnabledState.value),
@@ -108,8 +104,7 @@ fun GreenJuiceApp(
                                 showMenu = false
                             },
                             navigateSignIn = {
-                                if(navBackEnabledState.value) navController.navigate(GreenJuiceScreen.SIGN_IN.name)
-                                else viewModel.requestRefuse()
+                                navController.navigate(GreenJuiceScreen.SIGN_IN.name)
                             }
                         )
                     }
@@ -138,8 +133,6 @@ fun GreenJuiceApp(
 
 @Composable
 fun GreenJuiceIconTopBar(
-    showIcon: Boolean,
-    showTheme: Boolean,
     showSignIn: Boolean,
     showMenu: Boolean,
     isSignIn: Boolean,
@@ -179,16 +172,14 @@ fun GreenJuiceIconTopBar(
                 .size(AppBarHeight)
                 .align(Alignment.Center)
         ) {
-            if (showIcon) {
-                Image(
-                    painter = painterResource(id = R.drawable.green_juice),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .padding(8.dp)
-                        .align(Alignment.Center)
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.green_juice),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(48.dp)
+                    .padding(8.dp)
+                    .align(Alignment.Center)
+            )
         }
         Box(
             modifier = Modifier.align(Alignment.CenterEnd)
@@ -197,13 +188,11 @@ fun GreenJuiceIconTopBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                if (showTheme) {
-                    AppBarIconButton(onClick = navigateTheme) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.lightbulb),
-                            contentDescription = null,
-                        )
-                    }
+                AppBarIconButton(onClick = navigateTheme) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.lightbulb),
+                        contentDescription = null,
+                    )
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -298,8 +287,6 @@ fun AppBarIconButton(
 fun IconTopBarHasSignInAccountPreview() {
     GreenJuiceTheme {
         GreenJuiceIconTopBar(
-            showIcon = true,
-            showTheme = true,
             showSignIn = true,
             showMenu = true,
             isSignIn = true,
@@ -320,8 +307,6 @@ fun IconTopBarHasSignInAccountPreview() {
 fun IconTopBarNoHasSignInAccountPreview() {
     GreenJuiceTheme {
         GreenJuiceIconTopBar(
-            showIcon = true,
-            showTheme = true,
             showSignIn = false,
             showMenu = false,
             isSignIn = false,

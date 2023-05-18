@@ -306,7 +306,7 @@ fun SearchResultView(
                 items(searchItems) { data ->
                     SearchResultItem(
                         juiceItem = data,
-                        showFavorites = isSignIn,
+                        showFavorites = isSignIn and (data.juiceColor != null),
                         onCardClick = onCardClick,
                         addFavorites = { postId ->
                             Log.d("Favorites", "id = ${postId}인 게시글 츨겨찾기에 추가")
