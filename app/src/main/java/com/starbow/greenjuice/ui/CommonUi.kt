@@ -33,7 +33,7 @@ import com.starbow.greenjuice.R
 import com.starbow.greenjuice.enum.JuiceColor
 import com.starbow.greenjuice.enum.Sentiment
 import com.starbow.greenjuice.model.JuiceItem
-import com.starbow.greenjuice.ui.screen.deleteBoldTag
+import com.starbow.greenjuice.ui.screen.filtered
 import com.starbow.greenjuice.ui.theme.*
 
 //앱 타이틀
@@ -196,7 +196,7 @@ fun SearchResultItem(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = juiceItem.title.deleteBoldTag(),
+                            text = juiceItem.title.filtered(),
                             style = Typography.h3,
                             modifier = Modifier.weight(1f)
                         )
@@ -220,7 +220,7 @@ fun SearchResultItem(
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = juiceItem.description.deleteBoldTag())
+                    Text(text = juiceItem.description.filtered())
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -340,7 +340,7 @@ fun HashtagsView(
                 crossAxisAlignment = FlowCrossAxisAlignment.Center
             ) {
                 hashtags.forEach { keyword ->
-                    HashtagToken(keyword = keyword.deleteBoldTag())
+                    HashtagToken(keyword = keyword.filtered())
                 }
             }
         }

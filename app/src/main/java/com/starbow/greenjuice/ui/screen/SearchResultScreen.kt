@@ -444,6 +444,14 @@ fun LoadingScreenPreview() {
     }
 }
 
-fun String.deleteBoldTag(): String {
-    return this.replace("<b>", "").replace("</b>", "")
+fun String.filtered(): String {
+    return this.replace("<b>", "")
+        .replace("</b>", "")
+        .replace("&nbsp;", " ")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&amp;", "&")
+        .replace("&quot;", "\"")
+        .replace("&#035;", "#")
+        .replace("&#039;", "\'")
 }
